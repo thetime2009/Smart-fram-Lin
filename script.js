@@ -57,6 +57,7 @@ async function fetchData() {
 
     let parts = Array.isArray(data) ? data : String(data).split(',');
     let val = parts[0];
+    let cleanValue = val; // 👈 เพิ่มบรรทัดนี้
 
     // --- ส่วนเงื่อนไข Logic V10 ควบคุมการกด V11-V14 ---
     if (pin === 'V10') {
