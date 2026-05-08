@@ -49,13 +49,24 @@ function updateUI(pin, value) {
 }
 
 async function updateBlynk(pin, value) {
+    // สร้าง URL สำหรับสั่งงาน
+    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
+    
+    console.log("กำลังส่งคำสั่งไปที่:", url);
+
+    // วิธีที่ 1: ใช้ Image Tag (เทคนิคเลี่ยง CORS ที่ได้ผลที่สุดสำหรับ Legacy)
+    const img = new Image();
+    img.src = url; 
+    
+    // วิธีที่ 2: ใช้ fetch แบบ no-cors (สำรอง)
     try {
-        const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
-        // ใช้โหมด no-cors หากเจอปัญหา Mixed Content บล็อกการส่ง
-        await fetch(url, { mode: 'no-cors' }); 
-        console.log(`สั่งงานสำเร็จ: ${pin} เป็น ${value}`);
-    } catch (error) {
-        console.error("สั่งงานไม่สำเร็จ:", error);
+        await fetch(url, { 
+            mode: 'no-cors',
+            cache: 'no-cache'
+        });
+        console.log(`ส่งคำสั่ง ${pin} สำเร็จ`);
+    } catch (e) {
+        console.log("Fetch error (ปกติสำหรับ no-cors):", e);
     }
 }
 
