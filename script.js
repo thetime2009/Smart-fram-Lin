@@ -53,7 +53,7 @@ async function fetchData() {
 }
 
 // --- ปรับปรุงฟังก์ชันจัดการเวลาโดยเฉพาะ ---
-function updateUI(pin, cleanValue) {
+
     function updateUI(pin, data) {
     if (!data) return;
 
