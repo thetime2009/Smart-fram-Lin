@@ -1,21 +1,24 @@
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
-const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
+const BLYNK_URL = "https://blynk.iot-cm.com:8080/"; 
 
 async function fetchData() {
     try {
         const pins = ['V37', 'V36', 'V65', 'V29'];
-        
         for (let pin of pins) {
-            const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
+            // ลองใช้แบบดึงผ่าน proxy หรือลดระดับความเข้มงวด
+            const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`, {
+                method: 'GET'
+            });
+            
             if (response.ok) {
                 const data = await response.json(); 
-                // จัดการข้อมูล: ถ้ามาเป็น ["40"] ให้เอาแค่ 40
                 let value = Array.isArray(data) ? data[0] : data;
                 updateUI(pin, value);
             }
         }
     } catch (error) {
-        console.error("ไม่สามารถดึงข้อมูลจาก Server ได้:", error);
+        console.error("Connection Error:", error);
+        // ถ้าตัวเลขยังไม่ขึ้น ให้ลองเช็ค Console อีกทีว่าติดเรื่อง Mixed Content หรือเปล่า
     }
 }
 
