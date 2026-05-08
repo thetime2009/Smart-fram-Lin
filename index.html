@@ -109,67 +109,79 @@
                     </div>
                 </div>
                 <div class="card p-4 mb-4">
-    <h5 class="fw-bold mb-3 text-success"><i class="bi bi-calendar-check"></i> สรุปเวลาทำงานทุกโซน</h5>
+    <h5 class="fw-bold mb-3 text-success">
+        <i class="bi bi-calendar-check"></i> สรุปเวลาทำงานทุกโซน
+    </h5>
     <div class="table-responsive">
-        <table class="table table-bordered text-center">
+        <table class="table table-bordered text-center align-middle">
             <thead class="table-light">
                 <tr>
                     <th>โซน</th>
-                    <th>เวลาเริ่ม</th>
-                    <th>เวลาจบ</th>
+                    <th>เวลาเริ่ม (Start)</th>
+                    <th>เวลาจบ (Stop)</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>โซน 1 (V40)</td>
-                    <td id="v40_start">--:--</td>
-                    <td id="v40_stop">--:--</td>
+                    <td class="fw-bold text-success">โซน 1 (V40)</td>
+                    <td id="v40_start" class="fs-5">--:--</td>
+                    <td id="v40_stop" class="fs-5">--:--</td>
                 </tr>
                 <tr>
-                    <td>โซน 2 (V41)</td>
-                    <td id="v41_start">--:--</td>
-                    <td id="v41_stop">--:--</td>
+                    <td class="fw-bold text-success">โซน 2 (V41)</td>
+                    <td id="v41_start" class="fs-5">--:--</td>
+                    <td id="v41_stop" class="fs-5">--:--</td>
                 </tr>
                 <tr>
-                    <td>โซน 3 (V42)</td>
-                    <td id="v42_start">--:--</td>
-                    <td id="v42_stop">--:--</td>
+                    <td class="fw-bold text-success">โซน 3 (V42)</td>
+                    <td id="v42_start" class="fs-5">--:--</td>
+                    <td id="v42_stop" class="fs-5">--:--</td>
                 </tr>
                 <tr>
-                    <td>โซน 4 (V43)</td>
-                    <td id="v43_start">--:--</td>
-                    <td id="v43_stop">--:--</td>
+                    <td class="fw-bold text-success">โซน 4 (V43)</td>
+                    <td id="v43_start" class="fs-5">--:--</td>
+                    <td id="v43_stop" class="fs-5">--:--</td>
                 </tr>
             </tbody>
         </table>
     </div>
 </div>
 
-<div class="card p-4 mt-3">
-    <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-pencil-square"></i> แก้ไขการตั้งเวลา</h5>
+<div class="card p-4">
+    <h5 class="fw-bold mb-3 text-primary">
+        <i class="bi bi-pencil-square"></i> แก้ไขการตั้งเวลา (V40-V43)
+    </h5>
+    
     <div class="row g-2 mb-3 text-center">
         <div class="btn-group w-100" role="group">
-            <input type="radio" class="btn-check" name="timer_zone" id="z1" value="V40" checked>
+            <input type="radio" class="btn-check" name="timer_zone" id="z1" value="V40" onclick="fetchData()" checked>
             <label class="btn btn-outline-primary" for="z1">โซน 1</label>
-            <input type="radio" class="btn-check" name="timer_zone" id="z2" value="V41">
+            
+            <input type="radio" class="btn-check" name="timer_zone" id="z2" value="V41" onclick="fetchData()">
             <label class="btn btn-outline-primary" for="z2">โซน 2</label>
-            <input type="radio" class="btn-check" name="timer_zone" id="z3" value="V42">
+            
+            <input type="radio" class="btn-check" name="timer_zone" id="z3" value="V42" onclick="fetchData()">
             <label class="btn btn-outline-primary" for="z3">โซน 3</label>
-            <input type="radio" class="btn-check" name="timer_zone" id="z4" value="V43">
+            
+            <input type="radio" class="btn-check" name="timer_zone" id="z4" value="V43" onclick="fetchData()">
             <label class="btn btn-outline-primary" for="z4">โซน 4</label>
         </div>
     </div>
+
     <div class="row g-2 mb-3">
         <div class="col-6">
             <label class="small fw-bold">เวลาเริ่ม</label>
-            <input type="time" id="start_t" class="form-control">
+            <input type="time" id="start_t" class="form-control form-control-lg">
         </div>
         <div class="col-6">
             <label class="small fw-bold">เวลาจบ</label>
-            <input type="time" id="stop_t" class="form-control">
+            <input type="time" id="stop_t" class="form-control form-control-lg">
         </div>
     </div>
-    <button class="btn btn-primary w-100 fw-bold" onclick="saveTimer()">บันทึกเวลาใหม่</button>
+
+    <button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" onclick="saveTimer()">
+        <i class="bi bi-cloud-upload"></i> บันทึกเวลาใหม่ลงบอร์ด
+    </button>
 </div>
             </div>
         </div>
