@@ -37,7 +37,7 @@ async function getBlynkData(pin) {
 
 // 2. ฟังก์ชันหลัก: วนลูปดึงข้อมูลทุก Pin
 async function fetchData() {
-    const pins = ['V10', 'V1', 'V0', 'V65', 'V18', 'V105', 'V106', 'V11', 'V12', 'V13', 'V14', 'V27', 'V40', 'V41', 'V42', 'V43'];
+    const pins = ['V10', 'V1', 'V0', 'V65', 'V18', 'V105', 'V106', 'V11', 'V12', 'V13', 'V14', 'V27', 'V40', 'V41', 'V42', 'V43', 'V88'];
     // ใช้ for...of เพื่อให้ดึงทีละ Pin อย่างเป็นลำดับ (เสถียรกว่า)
     for (const pin of pins) {
         await getBlynkData(pin);
@@ -115,10 +115,11 @@ function updateUI(pin, cleanValue) {
 
     // --- ส่วนเซนเซอร์และสถานะ ---
     if (pin === 'V1') document.getElementById('temp').innerText = cleanValue + "°C";
-    if (pin === 'V0') document.getElementById('soil').innerText = cleanValue + "%";
+    if (pin === 'V0') document.getElementById('humi').innerText = cleanValue + "%";
     if (pin === 'V65') document.getElementById('rain').innerText = cleanValue;
     if (pin === 'V18') document.getElementById('water_used').innerText = cleanValue;
     if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
+    if (pin === 'V88') document.getElementById('soil').innerText = cleanValue;
     
     if (pin === 'V106') {
         const txt = cleanValue === "1" ? "คายน้ำสูง" : cleanValue === "2" ? "คายน้ำดีมาก" : cleanValue;
