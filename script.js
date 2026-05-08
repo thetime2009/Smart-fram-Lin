@@ -4,7 +4,7 @@ const BLYNK_URL = "http://blynk.iot-cm.com:8080/";
 async function fetchData() {
     try {
         // ดึงค่าเซนเซอร์ และสถานะไฟ LED (V21-V24)
-        const pins = ['V10' , 'V1', 'V0', 'V65', 'V18', 'V105', 'V21', 'V22', 'V23', 'V24'];
+        const pins = ['V10' , 'V1', 'V0', 'V65', 'V18', 'V105', 'V11','V12','V13','V14','V21', 'V22', 'V23', 'V24'];
         
         for (let pin of pins) {
             const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
@@ -30,12 +30,27 @@ function updateUI(pin, value) {
     if (pin === 'V18') document.getElementById('water_used').innerText = cleanValue;
     if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
 
-    // อัปเดตสีปุ่มตามสถานะ LED (255 คือเปิดใน Blynk Legacy)
+    // --- ส่วนอัปเดตปุ่ม Switch ระบบอัตโนมัติ (V10) ---
+    if (pin === 'V10') {
+        const v10Switch = document.getElementById('v10_switch');
+        // ถ้าค่าเป็น "1" ให้ติ๊กถูก (On) ถ้าเป็น "0" ให้เอาออก (Off)
+        v10Switch.checked = (cleanValue === "1");
+    }
+
+    // --- ส่วนอัปเดตสีปุ่ม Zone ตามสถานะ LED (V21-V24) ---
     const status = (cleanValue === "255" || cleanValue === "1");
     if (pin === 'V21') updateBtnStyle('btn-z1', status);
     if (pin === 'V22') updateBtnStyle('btn-z2', status);
     if (pin === 'V23') updateBtnStyle('btn-z3', status);
     if (pin === 'V24') updateBtnStyle('btn-z4', status);
+
+
+    // อัปเดตสีปุ่มตามสถานะ LED (255 คือเปิดใน Blynk Legacy)
+    const status = (cleanValue === "255" || cleanValue === "1");
+    if (pin === 'V11') updateBtnStyle('btn-z1', status);
+    if (pin === 'V12') updateBtnStyle('btn-z2', status);
+    if (pin === 'V13') updateBtnStyle('btn-z3', status);
+    if (pin === 'V14') updateBtnStyle('btn-z4', status);
 }
 
 function updateBtnStyle(id, isOn) {
