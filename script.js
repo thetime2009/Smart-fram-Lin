@@ -41,7 +41,20 @@ async function fetchData() {
 // --- ปรับปรุงฟังก์ชันจัดการเวลาโดยเฉพาะ ---
 function updateUI(pin, cleanValue) {
     if (!cleanValue) return;
+     // let parts = String(cleanValue).replace(/[\[\]"']/g, '').split(',');
+     // let val = parts[0];
 
+    // --- เพิ่มส่วนอัปเดตสวิตช์วาล์ว V11 - V14 ---
+    const valveSwitch = document.getElementById(`${pin.toLowerCase()}_switch`);
+    if (valveSwitch) {
+        // ใน Blynk ถ้าเป็นปุ่ม/วาล์ว ค่ามักเป็น 1 หรือ 255 คือเปิด
+        valveSwitch.checked = (val === "1" || val === "255");
+        return; // ทำงานเสร็จแล้วหยุดตรงนี้
+    }
+
+
+
+    
     // ล้างอักขระส่วนเกินที่อาจหลุดมา (เช่น ช่องว่าง หรือเครื่องหมายคำพูด)
     let raw = String(cleanValue).replace(/[\[\]"']/g, '');
     let parts = raw.split(',');
