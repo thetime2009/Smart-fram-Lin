@@ -1,84 +1,262 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Smart Farm Control</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Farm Pro - Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #00b09b, #96c93d);
+            --bg-color: #f0f2f5;
+            --card-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            --accent-color: #2ecc71;
+        }
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        body { 
+            background-color: var(--bg-color); 
+            font-family: 'Chakra Petch', sans-serif;
+            color: #2c3e50;
+        }
 
-<style>
-body { background:#f5f7fa; }
-.card { border-radius:15px; }
-.timer-table td { padding:5px 10px; }
-</style>
+        /* Modern Header */
+        header { 
+            background: var(--primary-gradient); 
+            color: white; 
+            padding: 40px 0 60px 0; 
+            border-bottom-left-radius: 40px; 
+            border-bottom-right-radius: 40px; 
+            margin-bottom: -40px;
+        }
+
+        /* Glassmorphism Card */
+        .card { 
+            border-radius: 24px; 
+            border: none; 
+            box-shadow: var(--card-shadow); 
+            transition: all 0.3s ease;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+
+        /* Status Icon Styling */
+        .icon-box {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .bg-temp { background: rgba(255, 71, 87, 0.1); color: #ff4757; }
+        .bg-humid { background: rgba(46, 213, 115, 0.1); color: #2ed573; }
+        .bg-rain { background: rgba(30, 144, 255, 0.1); color: #1e90ff; }
+        .bg-vpd { background: rgba(255, 165, 2, 0.1); color: #ffa502; }
+
+        /* Button Styling */
+        .btn-zone { 
+            border-radius: 18px;
+            padding: 15px 10px;
+            font-weight: 600;
+            border: 2px solid #eee;
+        }
+
+        .btn-success { background: var(--accent-color); border: none; border-radius: 15px; padding: 12px; }
+        .btn-primary { border-radius: 15px; padding: 12px; }
+
+        /* Switch Styling */
+        .form-check-input:checked { background-color: var(--accent-color); border-color: var(--accent-color); }
+
+        /* Table Styling */
+        .table { border-radius: 15px; overflow: hidden; }
+        .table thead { background-color: #f8f9fa; }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            header { padding: 30px 0 50px 0; }
+            .display-stat { font-size: 1.5rem !important; }
+        }
+    </style>
 </head>
+<body>
 
-<body class="p-3">
+<header class="text-center">
+    <div class="container">
+        <h2 class="fw-bold"><i class="bi bi-leaf-fill me-2"></i>Smart Farm Pro</h2>
+        <p class="mb-0 opacity-75">ระบบจัดการสวนทุเรียนอัจฉริยะ แม่หลิน</p>
+    </div>
+</header>
 
-<div class="container">
+<div class="container pb-5">
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card p-3 h-100 text-center">
+                <div class="icon-box bg-temp mx-auto"><i class="bi bi-thermometer-sun fs-3"></i></div>
+                <div class="text-muted small fw-bold">อุณหภูมิ</div>
+                <h3 id="temp" class="fw-bold mb-0 display-stat">--°C</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 h-100 text-center">
+                <div class="icon-box bg-humid mx-auto"><i class="bi bi-droplets-fill fs-3"></i></div>
+                <div class="text-muted small fw-bold">ความชื้นดิน</div>
+                <h3 id="soil" class="fw-bold mb-0 display-stat">--%</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 h-100 text-center">
+                <div class="icon-box bg-rain mx-auto"><i class="bi bi-cloud-rain-heavy-fill fs-3"></i></div>
+                <div class="text-muted small fw-bold">ปริมาณฝน</div>
+                <h3 id="rain" class="fw-bold mb-0 display-stat">--</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 h-100 text-center">
+                <div class="icon-box bg-vpd mx-auto"><i class="bi bi-wind fs-3"></i></div>
+                <div class="text-muted small fw-bold">ค่า VPD</div>
+                <h3 id="vpd_val" class="fw-bold mb-0 display-stat">--</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 h-100 text-center">
+                <div class="icon-box bg-vpd mx-auto"><i class="bi bi-wind fs-3"></i></div>
+                <div class="text-muted small fw-bold">การคายน้ำทุเรียน</div>
+                <h3 id="status_val" class="fw-bold mb-0 display-stat">--</h3>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card p-3 h-100 text-center">
+                <div class="icon-box bg-vpd mx-auto"><i class="bi bi-wind fs-3"></i></div>
+                <div class="text-muted small fw-bold">น้ำที่ใช้วันนี้</div>
+                <h3 id="water_used" class="fw-bold mb-0 display-stat">--</h3>
+            </div>
+        </div>
+    </div>
 
-<h3 class="mb-3">🌱 Smart Farm Dashboard</h3>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card p-4 mb-4">
+                <h5 class="fw-bold mb-4 d-flex align-items-center">
+                    <span class="icon-box bg-humid me-2 mb-0" style="width:35px; height:35px;"><i class="bi bi-sliders"></i></span>
+                    ตั้งค่าการทำงาน
+                </h5>
+                
+                <div class="d-flex justify-content-between align-items-center p-3 border rounded-4 mb-4 bg-light">
+                    <div>
+                        <span class="fw-bold d-block">ระบบอัตโนมัติ</span>
+                        <small class="text-muted">Smart Logic Control</small>
+                    </div>
+                    <div class="form-check form-switch fs-2">
+                        <input class="form-check-input" type="checkbox" id="v10_switch" onchange="toggleBlynk('V10', this.checked)">
+                    </div>
+                </div>
 
-<!-- SENSOR -->
-<div class="card p-3 mb-3">
-<h5>📊 Sensor</h5>
-<div>🌡 Temp: <span id="temp">--</span></div>
-<div>💧 Soil: <span id="soil">--</span></div>
-<div>🌧 Rain: <span id="rain">--</span></div>
-<div>🚿 Water Used: <span id="water_used">--</span></div>
-<div>🌿 VPD: <span id="vpd_val">--</span></div>
-<div>📌 Status: <span id="status_val">--</span></div>
-</div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold small">โหมดปัจจุบัน (V27)</label>
+                    <select class="form-select form-select-lg border-2" id="menu_select" onchange="updateBlynk('V27', this.value)" style="border-radius: 15px;">
+                        <option value="1">⏱️ โหมดตั้งเวลา (Time Mode)</option>
+                        <option value="2">💧 โหมดความชื้น (Humidity Mode)</option>
+                    </select>
+                </div>
 
-<!-- CONTROL -->
-<div class="card p-3 mb-3">
-<h5>🎛 Control</h5>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <button class="btn btn-outline-dark w-100 py-3 rounded-4" onclick="updateBlynk('V7', 1)">
+                            <i class="bi bi-lightbulb-fill text-warning me-1"></i> เปิดไฟ
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-outline-dark w-100 py-3 rounded-4" onclick="updateBlynk('V8', 1)">
+                            <i class="bi bi-megaphone-fill text-danger me-1"></i> เสียงเตือน
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-<div class="form-check form-switch">
-<input class="form-check-input" type="checkbox" id="v10_switch" onchange="toggleBlynk('V10', this.checked)">
-<label class="form-check-label">Auto Mode</label>
-</div>
+            <div class="card p-4">
+                <h5 class="fw-bold mb-4 d-flex align-items-center">
+                    <span class="icon-box bg-rain me-2 mb-0" style="width:35px; height:35px;"><i class="bi bi-water"></i></span>
+                    ควบคุมวาล์วอิสระ
+                </h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-3"><button id="btn-z1" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V11', 1)">Z1</button></div>
+                    <div class="col-3"><button id="btn-z2" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V12', 1)">Z2</button></div>
+                    <div class="col-3"><button id="btn-z3" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V13', 1)">Z3</button></div>
+                    <div class="col-3"><button id="btn-z4" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V14', 1)">Z4</button></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-6">
+                        <button class="btn btn-success w-100 fw-bold shadow" onclick="updateBlynk('V2', 1)">เปิดทั้งหมด</button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-danger w-100 fw-bold shadow" style="border-radius:15px" onclick="updateBlynk('V3', 1)">ปิดทั้งหมด</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="mt-2">
-<button id="btn-z1" class="btn btn-outline-success" onclick="updateBlynk('V11',1)">Zone 1</button>
-<button id="btn-z2" class="btn btn-outline-success" onclick="updateBlynk('V12',1)">Zone 2</button>
-<button id="btn-z3" class="btn btn-outline-success" onclick="updateBlynk('V13',1)">Zone 3</button>
-<button id="btn-z4" class="btn btn-outline-success" onclick="updateBlynk('V14',1)">Zone 4</button>
-</div>
+        <div class="col-lg-6">
+            <div class="card p-4 mb-4">
+                <h5 class="fw-bold mb-4 d-flex align-items-center">
+                    <span class="icon-box bg-vpd me-2 mb-0" style="width:35px; height:35px;"><i class="bi bi-clock-history"></i></span>
+                    สรุปตารางเวลา
+                </h5>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr class="text-center small">
+                                <th>โซน</th>
+                                <th>เริ่ม</th>
+                                <th>จบ</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-center">
+                            <tr><td>โซน 1</td><td id="v40_start" class="fw-bold text-success">--:--</td><td id="v40_stop" class="text-danger">--:--</td></tr>
+                            <tr><td>โซน 2</td><td id="v41_start" class="fw-bold text-success">--:--</td><td id="v41_stop" class="text-danger">--:--</td></tr>
+                            <tr><td>โซน 3</td><td id="v42_start" class="fw-bold text-success">--:--</td><td id="v42_stop" class="text-danger">--:--</td></tr>
+                            <tr><td>โซน 4</td><td id="v43_start" class="fw-bold text-success">--:--</td><td id="v43_stop" class="text-danger">--:--</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-</div>
+            <div class="card p-4 border-start border-primary border-4">
+                <h5 class="fw-bold mb-4 text-primary">แก้ไขการตั้งเวลา</h5>
+                <div class="btn-group w-100 mb-4 rounded-4 overflow-hidden shadow-sm">
+                    <input type="radio" class="btn-check" name="timer_zone" id="z1" value="V40" checked>
+                    <label class="btn btn-outline-primary border-0 py-3" for="z1">Z1</label>
+                    <input type="radio" class="btn-check" name="timer_zone" id="z2" value="V41">
+                    <label class="btn btn-outline-primary border-0 py-3" for="z2">Z2</label>
+                    <input type="radio" class="btn-check" name="timer_zone" id="z3" value="V42">
+                    <label class="btn btn-outline-primary border-0 py-3" for="z3">Z3</label>
+                    <input type="radio" class="btn-check" name="timer_zone" id="z4" value="V43">
+                    <label class="btn btn-outline-primary border-0 py-3" for="z4">Z4</label>
+                </div>
 
-<!-- TIMER -->
-<div class="card p-3 mb-3">
-<h5>⏱ Timer</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <label class="small fw-bold mb-2 d-block text-muted">เวลาเริ่มรดน้ำ</label>
+                        <input type="time" id="start_t" class="form-control form-control-lg border-2 rounded-4">
+                    </div>
+                    <div class="col-6">
+                        <label class="small fw-bold mb-2 d-block text-muted">เวลาหยุดรดน้ำ</label>
+                        <input type="time" id="stop_t" class="form-control form-control-lg border-2 rounded-4">
+                    </div>
+                </div>
 
-<table class="table timer-table">
-<tr><th>Zone</th><th>Start</th><th>Stop</th></tr>
-<tr><td>Z1</td><td id="v40_start">--</td><td id="v40_stop">--</td></tr>
-<tr><td>Z2</td><td id="v41_start">--</td><td id="v41_stop">--</td></tr>
-<tr><td>Z3</td><td id="v42_start">--</td><td id="v42_stop">--</td></tr>
-<tr><td>Z4</td><td id="v43_start">--</td><td id="v43_stop">--</td></tr>
-</table>
-
-<hr>
-
-<div>
-<label><input type="radio" name="timer_zone" value="V40"> Z1</label>
-<label><input type="radio" name="timer_zone" value="V41"> Z2</label>
-<label><input type="radio" name="timer_zone" value="V42"> Z3</label>
-<label><input type="radio" name="timer_zone" value="V43"> Z4</label>
-</div>
-
-<div class="mt-2">
-Start: <input type="time" id="start_t">
-Stop: <input type="time" id="stop_t">
-</div>
-
-<button class="btn btn-primary mt-2" onclick="saveTimer()">💾 Save Timer</button>
-
-</div>
-
+                <button class="btn btn-primary btn-lg w-100 fw-bold shadow" onclick="saveTimer()">
+                    <i class="bi bi-cloud-arrow-up-fill me-2"></i> บันทึกข้อมูลลงบอร์ด
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="script.js"></script>
