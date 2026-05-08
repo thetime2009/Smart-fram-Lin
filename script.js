@@ -143,21 +143,7 @@ const stopMin = timeToMinutes(stopStr);
     alert(`บันทึกสำเร็จ: ${startStr} - ${stopStr}`);
     setTimeout(() => getBlynkData(pin), 1500);
 }
- // ฟังก์ชันสำหรับ เปิด/ปิด วาล์วสลับกัน (Toggle)
-function toggleValve(pin, btnId) {
-    const btn = document.getElementById(btnId);
-    
-    // เช็กว่าปัจจุบันปุ่มมี class 'btn-success' (สีเขียวเข้ม) อยู่หรือไม่
-    // ถ้ามี แสดงว่า "เปิดอยู่" -> ให้ส่งค่า 0 ไปเพื่อ "ปิด"
-    // ถ้าไม่มี แสดงว่า "ปิดอยู่" -> ให้ส่งค่า 1 ไปเพื่อ "เปิด"
-    const isNowOn = btn.classList.contains('btn-success');
-    const newValue = isNowOn ? 0 : 1;
-
-    console.log(`Toggling ${pin} to ${newValue}`);
-    
-    // ส่งค่าไปที่ Blynk
-    updateBlynk(pin, newValue);
-}
+ 
 
 // เริ่มต้น
 document.addEventListener('DOMContentLoaded', () => {
