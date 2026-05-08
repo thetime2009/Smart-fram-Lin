@@ -109,7 +109,7 @@ function updateBtnStyle(id, isOn) {
         btn.classList.remove('btn-outline-success');
     } else {
         btn.classList.add('btn-outline-success');
-        btn.classList.remove('btn-success');
+        btn.classList.remove('btn-success'); 
     }
 }
 
