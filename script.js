@@ -16,12 +16,19 @@ function timeToSeconds(timeStr) {
 }
 
 // --- 2. ฟังก์ชันดึงข้อมูล (Fetch Data) ---
+// 1. ปรับฟังก์ชันดึงข้อมูลให้รับแบบ text ก่อนเพื่อป้องกัน JSON Error
 async function getBlynkData(pin) {
     try {
         const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
         if (response.ok) {
-            const data = await response.json();
-            updateUI(pin, data);
+            // ดึงเป็น text แทน json เพื่อจัดการตัวอักษรแปลกๆ
+            let rawData = await response.text();
+            
+            // ลบเครื่องหมาย " และ [ ] ออกให้หมดเพื่อให้เหลือแต่ค่าดิบๆ
+            let cleanData = rawData.replace(/[\[\]"]/g, '').trim();
+            
+            // ส่งค่าไปอัปเดต UI
+            updateUI(pin, cleanData, rawData); 
         }
     } catch (error) {
         console.error(`Error fetching ${pin}:`, error);
@@ -34,15 +41,22 @@ async function fetchData() {
     await Promise.all(pins.map(pin => getBlynkData(pin)));
 }
 
-// --- 3. ฟังก์ชันอัปเดตหน้าจอ (UI Update) ---
+// --- 3. ฟังก์ชันอัปเดตหน้าจอ (UI Update) - ฉบับแก้ไขทางเทคนิค ---
 function updateUI(pin, value) {
     if (value === undefined || value === null) return;
-    
-    // จัดการข้อมูลเวลา (V40-V43) แสดงในตารางและช่อง Input
+
+    // แก้ไขปัญหาแรก: ล้างขยะ [ ] " และอักขระพิเศษออกจากข้อมูลก่อน
+    // เพราะข้อมูลจาก Server อาจมาเป็น ["123"] หรือ '123' หรือมีตัวขึ้นบรรทัดใหม่
+    let rawString = String(value).replace(/[\[\]"'\r\n\t]/g, '').trim();
+
+    // --- จัดการข้อมูลเวลา (V40-V43) ---
     if (['V40', 'V41', 'V42', 'V43'].includes(pin)) {
-        if (Array.isArray(value) && value.length >= 2) {
-            const startTime = secondsToTime(value[0]);
-            const stopTime = secondsToTime(value[1]);
+        // ข้อมูลเวลาส่วนใหญ่จะมาในรูปแบบ "วินาทีเริ่ม,วินาทีจบ" เช่น "28800,32400"
+        let timeParts = rawString.split(',');
+        
+        if (timeParts.length >= 2) {
+            const startTime = secondsToTime(parseInt(timeParts[0]));
+            const stopTime = secondsToTime(parseInt(timeParts[1]));
 
             // เขียนลงตารางสรุป
             const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
@@ -50,25 +64,27 @@ function updateUI(pin, value) {
             if (startTable) startTable.innerText = startTime;
             if (stopTable) stopTable.innerText = stopTime;
 
-            // เขียนลงช่อง Input (ถ้ากำลังเลือกโซนนั้นอยู่)
+            // เขียนลงช่อง Input (กรณีเลือกโซนนั้นอยู่)
             const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
             if (selectedZone && selectedZone.value === pin) {
                 document.getElementById('start_t').value = startTime;
                 document.getElementById('stop_t').value = stopTime;
             }
         }
-        return;
+        return; // จบการทำงานของโซนเวลา
     }
 
-    // จัดการข้อมูลทั่วไป
-    let cleanValue = String(Array.isArray(value) ? value[0] : value).replace(/[\[\]" ]/g, '');
+    // --- จัดการข้อมูลทั่วไป (เซนเซอร์ และ ปุ่ม) ---
+    let cleanValue = rawString;
 
+    // อัปเดตตัวเลขเซนเซอร์
     if (pin === 'V1') document.getElementById('temp').innerText = cleanValue + "°C";
     if (pin === 'V0') document.getElementById('soil').innerText = cleanValue + "%";
     if (pin === 'V65') document.getElementById('rain').innerText = cleanValue;
     if (pin === 'V18') document.getElementById('water_used').innerText = cleanValue;
     if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
     
+    // สถานะคายน้ำ
     if (pin === 'V106') {
         let statusTxt = cleanValue;
         if (cleanValue === "1") statusTxt = "คายน้ำสูง";
@@ -76,17 +92,19 @@ function updateUI(pin, value) {
         document.getElementById('status_val').innerText = statusTxt;
     }
 
+    // สวิตช์ V10
     if (pin === 'V10') {
         const sw = document.getElementById('v10_switch');
         if (sw) sw.checked = (cleanValue === "1");
     }
 
+    // เมนู V27
     if (pin === 'V27') {
         const menu = document.getElementById('menu_select');
-        if (menu && menu.value !== cleanValue) menu.value = cleanValue;
+        if (menu) menu.value = cleanValue;
     }
 
-    // อัปเดตสีปุ่มวาล์ว Z1-Z4
+    // อัปเดตสีปุ่มวาล์ว Z1-Z4 (รองรับทั้งค่า 1 และ 255)
     const isOn = (cleanValue === "255" || cleanValue === "1");
     if (pin === 'V11') updateBtnStyle('btn-z1', isOn);
     if (pin === 'V12') updateBtnStyle('btn-z2', isOn);
