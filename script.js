@@ -65,6 +65,10 @@ async function fetchData() {
 
     // แปลง data เป็น array
     let parts = Array.isArray(data) ? data : String(data).replace(/[\[\]"']/g, '').split(',');
+
+    // 👇 ใส่ตรงนี้เลย (ถูกต้อง)
+    console.log("PIN:", pin, "DATA:", parts);
+        
     let val = parts[0];
     let cleanValue = val;
 
