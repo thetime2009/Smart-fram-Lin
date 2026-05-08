@@ -83,6 +83,16 @@
             header { padding: 30px 0 50px 0; }
             .display-stat { font-size: 1.5rem !important; }
         }
+        /* เมื่อสวิตช์โดนล็อก ให้ดูจางลง */
+.form-check-input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ทำให้ Card ของโซนดูจางลงด้วยเมื่อโดนล็อก */
+.form-check-input:disabled ~ .fw-bold {
+    color: #ccc;
+}
     </style>
 </head>
 <body>
