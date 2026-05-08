@@ -19,11 +19,21 @@ async function fetchData() {
     }
 }
 
+// ฟังก์ชันเสริมสำหรับแปลง วินาที (จากเที่ยงคืน) เป็นรูปแบบ HH:mm เพื่อใส่ในช่อง Input
+function secondsToTime(seconds) {
+    if (isNaN(seconds)) return "00:00";
+    const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+    return `${hrs}:${mins}`;
+}
+
 function updateUI(pin, value) {
     if (value === undefined || value === null) return;
+    
+    // เตรียมค่าสำหรับการเช็คสถานะทั่วไป (ลบเครื่องหมาย [ ] " และช่องว่าง)
     let cleanValue = String(value).replace(/[\[\]" ]/g, ''); 
 
-    // อัปเดตตัวเลขเซนเซอร์
+    // 1. อัปเดตตัวเลขเซนเซอร์และสถานะ
     if (pin === 'V1') document.getElementById('temp').innerText = cleanValue + "°C";
     if (pin === 'V0') document.getElementById('soil').innerText = cleanValue + "%";
     if (pin === 'V65') document.getElementById('rain').innerText = cleanValue;
@@ -31,13 +41,15 @@ function updateUI(pin, value) {
     if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
     if (pin === 'V106') document.getElementById('status_val').innerText = cleanValue;
 
-    // --- ส่วนอัปเดตปุ่ม Switch ระบบอัตโนมัติ (V10) ---
+    // 2. อัปเดตปุ่ม Switch ระบบอัตโนมัติ (V10)
     if (pin === 'V10') {
         const v10Switch = document.getElementById('v10_switch');
-        // ถ้าค่าเป็น "1" ให้ติ๊กถูก (On) ถ้าเป็น "0" ให้เอาออก (Off)
-        v10Switch.checked = (cleanValue === "1");
+        if (v10Switch) {
+            v10Switch.checked = (cleanValue === "1");
+        }
     }
-    // --- อัปเดต Dropdown เลือกโหมด (V27) ---
+
+    // 3. อัปเดต Dropdown เลือกโหมด (V27)
     if (pin === 'V27') {
         const menu = document.getElementById('menu_select');
         if (menu && menu.value !== cleanValue) {
@@ -45,18 +57,32 @@ function updateUI(pin, value) {
         }
     }
 
-    // --- อัปเดตการเลือกโซนตั้งเวลา (V40-V43) ---
-    // ถ้า Pin ไหนส่งค่า "1" มา ให้ปุ่มนั้นถูกเลือก
+    // 4. อัปเดตการเลือกโซน (V40-V43) และดึงเวลามาแสดง
+    // ตรวจสอบว่า Pin ที่กำลังอัปเดต คือโซนที่ผู้ใช้เลือกดูอยู่หรือไม่
+    const selectedZoneInput = document.querySelector('input[name="timer_zone"]:checked');
+    const currentSelectedPin = selectedZoneInput ? selectedZoneInput.value : 'V40';
+
+    // ถ้า Pin นี้ถูกเปิดใช้งาน (ค่าเป็น 1) ให้เลื่อนปุ่มวิทยุไปที่โซนนั้น
     if (cleanValue === "1") {
-        if (pin === 'V40') document.getElementById('z1_timer').checked = true;
-        if (pin === 'V41') document.getElementById('z2_timer').checked = true;
-        if (pin === 'V42') document.getElementById('z3_timer').checked = true;
-        if (pin === 'V43') document.getElementById('z4_timer').checked = true;
+        const zoneRadio = document.getElementById(pin === 'V40' ? 'z1' : pin === 'V41' ? 'z2' : pin === 'V42' ? 'z3' : pin === 'V43' ? 'z4' : '');
+        if (zoneRadio) zoneRadio.checked = true;
     }
-    
 
+    // ดึงเวลา: ถ้า Pin ที่กำลังประมวลผลตรงกับโซนที่เลือกดูอยู่ ให้แยกค่าเวลามาโชว์
+    if (pin === currentSelectedPin) {
+        try {
+            // Blynk Time Input จะส่งมาเป็น Array [startSeconds, stopSeconds, timezone]
+            const timeData = JSON.parse(String(value).replace(/'/g, '"'));
+            if (Array.isArray(timeData) && timeData.length >= 2) {
+                document.getElementById('start_t').value = secondsToTime(timeData[0]);
+                document.getElementById('stop_t').value = secondsToTime(timeData[1]);
+            }
+        } catch (e) {
+            console.log("ไม่ใช่รูปแบบ Time Input หรือข้อมูลยังไม่พร้อม");
+        }
+    }
 
-    // อัปเดตสีปุ่มตามสถานะ LED (255 คือเปิดใน Blynk Legacy)
+    // 5. อัปเดตสีปุ่มควบคุมวาล์ว (Z1-Z4) ตามสถานะ LED (V11-V14)
     const status = (cleanValue === "255" || cleanValue === "1");
     if (pin === 'V11') updateBtnStyle('btn-z1', status);
     if (pin === 'V12') updateBtnStyle('btn-z2', status);
