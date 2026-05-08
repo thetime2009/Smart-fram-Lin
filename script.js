@@ -108,42 +108,68 @@ function updateUI(pin, data) {
         valveSwitch.checked = (val === "1" || val === "255");
     }
 
-    // =====================
-    // ⏰ TIME INPUT
-    // =====================
-    if (['V40','V41','V42','V43'].includes(pin)) {
+   // =====================
+// ⏰ TIME INPUT (FIX COMPLETE)
+// =====================
+if (['V40','V41','V42','V43'].includes(pin)) {
 
-        let startSec = parseInt(parts[0]);
-        let stopSec  = parseInt(parts[1]);
+    // 🔥 กันเคสไม่มี timer (สำคัญมาก)
+    if (!parts || parts.length < 2) {
 
-        let startTime = secondsToTime(startSec);
-        let stopTime  = secondsToTime(stopSec);
-
-        let dayText = (parts.length > 3) ? "Everyday" : "--";
-
-        // ตาราง
         const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
         const stopTable  = document.getElementById(`${pin.toLowerCase()}_stop`);
         const dayTable   = document.getElementById(`${pin.toLowerCase()}_day`);
 
-        if (startTable) startTable.innerText = startTime;
-        if (stopTable)  stopTable.innerText  = stopTime;
-        if (dayTable)   dayTable.innerText   = dayText;
+        if (startTable) startTable.innerText = "--:--";
+        if (stopTable)  stopTable.innerText  = "--:--";
+        if (dayTable)   dayTable.innerText   = "--";
 
-        // input
+        // เคลียร์ input ด้วย
         const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
-
         if (selectedZone && selectedZone.value === pin) {
-
             const startInput = document.getElementById('start_t');
             const stopInput  = document.getElementById('stop_t');
 
-            if (startInput) startInput.value = /^\d{2}:\d{2}$/.test(startTime) ? startTime : "";
-            if (stopInput)  stopInput.value  = /^\d{2}:\d{2}$/.test(stopTime)  ? stopTime  : "";
+            if (startInput) startInput.value = "";
+            if (stopInput)  stopInput.value  = "";
         }
 
         return;
     }
+
+    // 🔥 parse แบบปลอดภัย
+    let startSec = parseInt(parts[0]);
+    let stopSec  = parseInt(parts[1]);
+
+    let startTime = (!isNaN(startSec)) ? secondsToTime(startSec) : "--:--";
+    let stopTime  = (!isNaN(stopSec))  ? secondsToTime(stopSec)  : "--:--";
+
+    let dayText = (parts.length > 3) ? "Everyday" : "--";
+
+    // ตาราง
+    const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
+    const stopTable  = document.getElementById(`${pin.toLowerCase()}_stop`);
+    const dayTable   = document.getElementById(`${pin.toLowerCase()}_day`);
+
+    if (startTable) startTable.innerText = startTime;
+    if (stopTable)  stopTable.innerText  = stopTime;
+    if (dayTable)   dayTable.innerText   = dayText;
+
+    // input
+    const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+
+    if (selectedZone && selectedZone.value === pin) {
+
+        const startInput = document.getElementById('start_t');
+        const stopInput  = document.getElementById('stop_t');
+
+        // 🔥 กัน format พัง
+        if (startInput) startInput.value = /^\d{2}:\d{2}$/.test(startTime) ? startTime : "";
+        if (stopInput)  stopInput.value  = /^\d{2}:\d{2}$/.test(stopTime)  ? stopTime  : "";
+    }
+
+    return;
+}
 
     // =====================
     // 🌡️ SENSOR
