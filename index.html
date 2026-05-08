@@ -108,36 +108,68 @@
                         </button>
                     </div>
                 </div>
-                <div class="card p-4 mt-3">
-    <h5 class="fw-bold mb-3 text-success"><i class="bi bi-alarm"></i> ตั้งเวลาแยกโซน (V40-V43)</h5>
-    
+                <div class="card p-4 mb-4">
+    <h5 class="fw-bold mb-3 text-success"><i class="bi bi-calendar-check"></i> สรุปเวลาทำงานทุกโซน</h5>
+    <div class="table-responsive">
+        <table class="table table-bordered text-center">
+            <thead class="table-light">
+                <tr>
+                    <th>โซน</th>
+                    <th>เวลาเริ่ม</th>
+                    <th>เวลาจบ</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>โซน 1 (V40)</td>
+                    <td id="v40_start">--:--</td>
+                    <td id="v40_stop">--:--</td>
+                </tr>
+                <tr>
+                    <td>โซน 2 (V41)</td>
+                    <td id="v41_start">--:--</td>
+                    <td id="v41_stop">--:--</td>
+                </tr>
+                <tr>
+                    <td>โซน 3 (V42)</td>
+                    <td id="v42_start">--:--</td>
+                    <td id="v42_stop">--:--</td>
+                </tr>
+                <tr>
+                    <td>โซน 4 (V43)</td>
+                    <td id="v43_start">--:--</td>
+                    <td id="v43_stop">--:--</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="card p-4 mt-3">
+    <h5 class="fw-bold mb-3 text-primary"><i class="bi bi-pencil-square"></i> แก้ไขการตั้งเวลา</h5>
     <div class="row g-2 mb-3 text-center">
         <div class="btn-group w-100" role="group">
             <input type="radio" class="btn-check" name="timer_zone" id="z1" value="V40" checked>
-            <label class="btn btn-outline-success" for="z1">โซน 1</label>
+            <label class="btn btn-outline-primary" for="z1">โซน 1</label>
             <input type="radio" class="btn-check" name="timer_zone" id="z2" value="V41">
-            <label class="btn btn-outline-success" for="z2">โซน 2</label>
+            <label class="btn btn-outline-primary" for="z2">โซน 2</label>
             <input type="radio" class="btn-check" name="timer_zone" id="z3" value="V42">
-            <label class="btn btn-outline-success" for="z3">โซน 3</label>
+            <label class="btn btn-outline-primary" for="z3">โซน 3</label>
             <input type="radio" class="btn-check" name="timer_zone" id="z4" value="V43">
-            <label class="btn btn-outline-success" for="z4">โซน 4</label>
+            <label class="btn btn-outline-primary" for="z4">โซน 4</label>
         </div>
     </div>
-
     <div class="row g-2 mb-3">
         <div class="col-6">
             <label class="small fw-bold">เวลาเริ่ม</label>
-            <input type="time" id="start_t" class="form-control" value="08:00">
+            <input type="time" id="start_t" class="form-control">
         </div>
         <div class="col-6">
             <label class="small fw-bold">เวลาจบ</label>
-            <input type="time" id="stop_t" class="form-control" value="08:30">
+            <input type="time" id="stop_t" class="form-control">
         </div>
     </div>
-
-    <button class="btn btn-primary w-100 fw-bold" onclick="saveTimer()">
-        <i class="bi bi-check-circle"></i> บันทึกเวลาลงบอร์ด
-    </button>
+    <button class="btn btn-primary w-100 fw-bold" onclick="saveTimer()">บันทึกเวลาใหม่</button>
 </div>
             </div>
         </div>
