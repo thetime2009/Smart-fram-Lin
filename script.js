@@ -1,22 +1,23 @@
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 
+// ฟังก์ชันหลักที่รันตอนเปิดหน้าเว็บ
 async function fetchData() {
     try {
-        // ดึงค่าเซนเซอร์, สถานะระบบ และ Pins ตั้งเวลา (V40-V43)
+        // รายชื่อ Pins ทั้งหมดที่ต้องดึงข้อมูล
         const pins = ['V10', 'V1', 'V0', 'V65', 'V18', 'V105', 'V106', 'V11', 'V12', 'V13', 'V14', 'V21', 'V22', 'V23', 'V24', 'V27', 'V40', 'V41', 'V42', 'V43'];
         
-        for (let pin of pins) {
+        // ใช้ Promise.all เพื่อให้ดึงข้อมูลเร็วขึ้นพร้อมๆ กัน
+        await Promise.all(pins.map(async (pin) => {
             const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
             if (response.ok) {
                 const data = await response.json(); 
-                // จัดการข้อมูล Time Input (V40-V43) จะมาเป็น Array
-                // ส่วนค่าปกติจะดึงตำแหน่งที่ 0 มาใช้งาน
+                // ส่งข้อมูลไปอัปเดต UI โดยตรง
                 updateUI(pin, data);
             }
-        }
+        }));
     } catch (error) {
-        console.error("Connection Error:", error);
+        console.error("Initial Fetch Error:", error);
     }
 }
 
@@ -37,7 +38,34 @@ function timeToSeconds(timeStr) {
 
 function updateUI(pin, value) {
     if (value === undefined || value === null) return;
-    
+    // 1. จัดการข้อมูลเวลา (V40-V43) สำหรับแสดงในตาราง
+    if (['V40', 'V41', 'V42', 'V43'].includes(pin)) {
+        try {
+            // ข้อมูลจาก Private Server มักมาเป็นรูปแบบ Array: [startSec, stopSec, TZ, Days]
+            const timeData = Array.isArray(value) ? value : JSON.parse(String(value).replace(/'/g, '"'));
+            
+            if (timeData && timeData.length >= 2) {
+                const startTime = secondsToTime(timeData[0]);
+                const stopTime = secondsToTime(timeData[1]);
+
+                // แสดงผลในตาราง (ตรวจสอบ ID ใน HTML ให้ตรงกับ v40_start, v40_stop เป็นต้น)
+                const startElem = document.getElementById(`${pin.toLowerCase()}_start`);
+                const stopElem = document.getElementById(`${pin.toLowerCase()}_stop`);
+                
+                if (startElem) startElem.innerText = startTime;
+                if (stopElem) stopElem.innerText = stopTime;
+
+                // ถ้าโซนที่ดึงมา ตรงกับโซนที่เลือกอยู่ในส่วน "แก้ไขการตั้งเวลา" ให้เอาค่าไปใส่ในช่อง Input ด้วย
+                const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+                if (selectedZone && selectedZone.value === pin) {
+                    document.getElementById('start_t').value = startTime;
+                    document.getElementById('stop_t').value = stopTime;
+                }
+            }
+        } catch (e) {
+            console.log("Error parsing time for " + pin);
+        }
+    }
     // ค่าสำหรับแสดงผลข้อความทั่วไป (ลบเครื่องหมายส่วนเกิน)
     let cleanValue = String(value).replace(/[\[\]" ]/g, ''); 
 
