@@ -26,17 +26,15 @@ async function getBlynkData(pin) {
         if (response.ok) {
             let rawData = await response.text();
 
-// แปลงเป็น array แบบปลอดภัย
-let data;
-try {
-    data = JSON.parse(rawData);
-} catch (e) {
-    // fallback กรณี format เพี้ยน
-    data = rawData.replace(/[\[\]"']/g, '').split(',');
-}
+            let data;
+            try {
+                data = JSON.parse(rawData);
+            } catch (e) {
+                data = rawData.replace(/[\[\]"']/g, '').split(',');
+            }
 
-            updateUI(pin, data); // 👈 ส่งเป็น array จริง
-        }   
+            updateUI(pin, data);
+        }
 
     } catch (error) {
         console.error(`มือถือดึงข้อมูล ${pin} ไม่ได้:`, error);
