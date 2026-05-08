@@ -36,7 +36,7 @@ try {
 }
 
             updateUI(pin, data); // 👈 ส่งเป็น array จริง
-        
+        }   
 
     } catch (error) {
         console.error(`มือถือดึงข้อมูล ${pin} ไม่ได้:`, error);
