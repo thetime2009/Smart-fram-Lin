@@ -41,19 +41,39 @@ async function fetchData() {
 // --- ปรับปรุงฟังก์ชันจัดการเวลาโดยเฉพาะ ---
 function updateUI(pin, cleanValue) {
     if (!cleanValue) return;
-      let parts = String(cleanValue).replace(/[\[\]"']/g, '').split(',');
-      let val = parts[0];
+    let parts = String(cleanValue).replace(/[\[\]"']/g, '').split(',');
+    let val = parts[0];
 
-    // --- เพิ่มส่วนอัปเดตสวิตช์วาล์ว V11 - V14 ---
-    const valveSwitch = document.getElementById(`${pin.toLowerCase()}_switch`);
-    if (valveSwitch) {
-        // ใน Blynk ถ้าเป็นปุ่ม/วาล์ว ค่ามักเป็น 1 หรือ 255 คือเปิด
-        valveSwitch.checked = (val === "1" || val === "255");
-        return; // ทำงานเสร็จแล้วหยุดตรงนี้
+    // --- ส่วนเงื่อนไข Logic V10 ควบคุมการกด V11-V14 ---
+    if (pin === 'V10') {
+        const isAuto = (val === "1"); // เช็กว่า Auto เปิดอยู่หรือไม่
+        const v10Switch = document.getElementById('v10_switch');
+        if (v10Switch) v10Switch.checked = isAuto;
+
+        // รายชื่อ ID ของสวิตช์ที่ต้องการ Lock
+        const zonePins = ['v11_switch', 'v12_switch', 'v13_switch', 'v14_switch'];
+        
+        zonePins.forEach(id => {
+            const sw = document.getElementById(id);
+            if (sw) {
+                sw.disabled = isAuto; // ถ้า Auto เป็น True (เปิด) สวิตช์จะกดไม่ได้ (Disabled)
+                
+                // ถ้าเปิด Auto ให้รีเซ็ตสวิตช์ Zone เป็นปิด (0) ตามที่คุณต้องการ
+                if (isAuto) {
+                    sw.checked = false;
+                }
+            }
+        });
     }
 
+    // --- ส่วนอัปเดตสถานะสวิตช์ V11 - V14 (เมื่อไม่ได้โดน Lock) ---
+    const valveSwitch = document.getElementById(`${pin.toLowerCase()}_switch`);
+    if (valveSwitch) {
+        valveSwitch.checked = (val === "1" || val === "255");
+    }
 
-
+    // ... (โค้ดจัดการเซนเซอร์และเวลา V40-V43 ส่วนเดิมของคุณ) ...
+}
     
     // ล้างอักขระส่วนเกินที่อาจหลุดมา (เช่น ช่องว่าง หรือเครื่องหมายคำพูด)
    // let raw = String(cleanValue).replace(/[\[\]"']/g, '');
