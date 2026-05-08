@@ -39,7 +39,9 @@ function parseBlynkTime(data) {
 // =====================
 async function getBlynkData(pin) {
     try {
-        const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}?t=${Date.now()}`);
+        const response = await fetch(
+            `https://blynk-proxy.vercel.app/api/blynk?pin=${pin}&t=${Date.now()}`
+        );
 
         if (response.ok) {
             let rawData = await response.text();
