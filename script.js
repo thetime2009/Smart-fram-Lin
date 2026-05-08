@@ -1,25 +1,28 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbzD5ZJ1VxVUGrclzA4iBZOfCmToPeTFOycqv5BCaboW6tq-id0gCrO3RzymBYoELI1s/exec";
+const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 
-function minutesToTime(minutes) {
-    if (minutes === null || isNaN(minutes) || minutes < 0) return "--:--";
-    const hrs = Math.floor(minutes / 60).toString().padStart(2, '0');
-    const mins = Math.floor(minutes % 60).toString().padStart(2, '0');
+function secondsToTime(seconds) {
+    if (seconds === null || isNaN(seconds) || seconds < 0) return "--:--";
+    const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
+    const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
     return `${hrs}:${mins}`;
 }
-function timeToMinutes(timeStr) {
+
+function timeToSeconds(timeStr) {
+    if (!timeStr) return 0;
     const [hrs, mins] = timeStr.split(':');
-    return (parseInt(hrs) * 60) + parseInt(mins);
+    return (parseInt(hrs) * 3600) + (parseInt(mins) * 60);
 }
 
 // 1. ดึงข้อมูลทีละ Pin เพื่อความชัวร์ (แก้ปัญหา JSON Error)
 async function getBlynkData(pin) {
     try {
-        const response = await fetch(`${API_URL}?pin=${pin}`);
-        const data = await response.json();
-
-        if (data.value !== undefined) {
-            updateUI(pin, data.value);
+        const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
+        if (response.ok) {
+            let rawData = await response.text();
+            // ล้างขยะอักขระ: [ ] " ' และตัวเว้นวรรค
+            let cleanData = rawData.replace(/[\[\]"']/g, '').trim();
+            updateUI(pin, cleanData); 
         }
     } catch (error) {
         console.error(`Error fetching ${pin}:`, error);
@@ -51,8 +54,8 @@ function updateUI(pin, cleanValue) {
             let stopSec = parseInt(parts[1].trim());
 
             // ตรวจสอบว่าต้องไม่เป็นค่าว่างหรือ NaN
-            let startTime = (!isNaN(startSec) && startSec !== -1) ? minutesToTime(startSec) : "--:--";
-            let stopTime = (!isNaN(stopSec) && stopSec !== -1) ? minutesToTime(stopSec) : "--:--";
+            let startTime = (!isNaN(startSec) && startSec !== -1) ? secondsToTime(startSec) : "--:--";
+            let stopTime = (!isNaN(stopSec) && stopSec !== -1) ? secondsToTime(stopSec) : "--:--";
 
             // อัปเดตลงตาราง
             const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
@@ -132,11 +135,11 @@ function saveTimer() {
 
     if (!startStr || !stopStr) return alert("ระบุเวลาให้ครบครับ");
 
-    const startMin = timeToMinutes(startStr);
-const stopMin = timeToMinutes(stopStr);
+    const startSec = timeToSeconds(startStr);
+    const stopSec = timeToSeconds(stopStr);
 
     // ส่งค่าแบบ Time Input: [Start, Stop, TZ, Days]
-    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${startMin}&value=${stopMin}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
+    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${startSec}&value=${stopSec}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
     const img = new Image();
     img.src = url;
     
