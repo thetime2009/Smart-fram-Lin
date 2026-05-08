@@ -108,21 +108,36 @@
                         </button>
                     </div>
                 </div>
-                <div class="mb-4 mt-3">
-    <label class="form-label fw-bold small">เลือกโซนเพื่อตั้งเวลา (V40-V43)</label>
-    <div class="btn-group w-100" role="group">
-        <input type="radio" class="btn-check" name="zone_select" id="z1_timer" onclick="updateBlynk('V40', 1)" checked>
-        <label class="btn btn-outline-success" for="z1_timer">โซน 1</label>
-
-        <input type="radio" class="btn-check" name="zone_select" id="z2_timer" onclick="updateBlynk('V41', 1)">
-        <label class="btn btn-outline-success" for="z2_timer">โซน 2</label>
-
-        <input type="radio" class="btn-check" name="zone_select" id="z3_timer" onclick="updateBlynk('V42', 1)">
-        <label class="btn btn-outline-success" for="z3_timer">โซน 3</label>
-
-        <input type="radio" class="btn-check" name="zone_select" id="z4_timer" onclick="updateBlynk('V43', 1)">
-        <label class="btn btn-outline-success" for="z4_timer">โซน 4</label>
+                <div class="card p-4 mt-3">
+    <h5 class="fw-bold mb-3 text-success"><i class="bi bi-alarm"></i> ตั้งเวลาแยกโซน (V40-V43)</h5>
+    
+    <div class="row g-2 mb-3 text-center">
+        <div class="btn-group w-100" role="group">
+            <input type="radio" class="btn-check" name="timer_zone" id="z1" value="V40" checked>
+            <label class="btn btn-outline-success" for="z1">โซน 1</label>
+            <input type="radio" class="btn-check" name="timer_zone" id="z2" value="V41">
+            <label class="btn btn-outline-success" for="z2">โซน 2</label>
+            <input type="radio" class="btn-check" name="timer_zone" id="z3" value="V42">
+            <label class="btn btn-outline-success" for="z3">โซน 3</label>
+            <input type="radio" class="btn-check" name="timer_zone" id="z4" value="V43">
+            <label class="btn btn-outline-success" for="z4">โซน 4</label>
+        </div>
     </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            <label class="small fw-bold">เวลาเริ่ม</label>
+            <input type="time" id="start_t" class="form-control" value="08:00">
+        </div>
+        <div class="col-6">
+            <label class="small fw-bold">เวลาจบ</label>
+            <input type="time" id="stop_t" class="form-control" value="08:30">
+        </div>
+    </div>
+
+    <button class="btn btn-primary w-100 fw-bold" onclick="saveTimer()">
+        <i class="bi bi-check-circle"></i> บันทึกเวลาลงบอร์ด
+    </button>
 </div>
             </div>
         </div>
