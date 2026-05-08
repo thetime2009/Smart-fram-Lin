@@ -135,12 +135,23 @@ async function fetchData() {
         if (stopTable)  stopTable.innerText  = stopTime;
         if (dayTable)   dayTable.innerText   = dayText;
 
-        // 👉 sync input ด้านล่าง
-        const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
-        if (selectedZone && selectedZone.value === pin) {
-            document.getElementById('start_t').value = (startTime !== "--:--") ? startTime : "";
-            document.getElementById('stop_t').value  = (stopTime !== "--:--")  ? stopTime  : "";
-        }
+        // 👉 sync input ด้านล่าง (แก้ใหม่)
+const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+
+if (selectedZone && selectedZone.value === pin) {
+
+    const startInput = document.getElementById('start_t');
+    const stopInput  = document.getElementById('stop_t');
+
+    // 🔥 บังคับ format HH:mm เท่านั้น
+    if (startInput) {
+        startInput.value = /^\d{2}:\d{2}$/.test(startTime) ? startTime : "";
+    }
+
+    if (stopInput) {
+        stopInput.value = /^\d{2}:\d{2}$/.test(stopTime) ? stopTime : "";
+    }
+}
 
         return;
     }
