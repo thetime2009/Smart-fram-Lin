@@ -66,8 +66,8 @@ async function getBlynkData(pin) {
 // 🔁 LOOP FETCH
 // =====================
 async function fetchData() {
-    // const pins = ['V10','V1','V0','V65','V18','V105','V106','V11','V12','V13','V14','V27','V40','V41','V42','V43','V88'];
-const pins = [V10,V1,V0,V65,V18,V105,V106,V11,V12,V13,V14,V27,V40,V41,V42,V43,V88];
+     const pins = ['V10','V1','V0','V65','V18','V105','V106','V11','V12','V13','V14','V27','V40','V41','V42','V43','V88'];
+//const pins = [V10,V1,V0,V65,V18,V105,V106,V11,V12,V13,V14,V27,V40,V41,V42,V43,V88];
     for (const pin of pins) {
         await getBlynkData(pin);
     }
