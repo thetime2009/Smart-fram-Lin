@@ -108,6 +108,50 @@
                         </button>
                     </div>
                 </div>
+<div class="col-lg-6">
+            <div class="card p-4 h-100">
+                <h5 class="fw-bold mb-4 text-success border-bottom pb-2"><i class="bi bi-droplets"></i> ควบคุมวาล์วรดน้ำ</h5>
+                
+                <div class="row g-3 mb-4 text-center">
+                    <div class="col-3">
+                        <button id="btn-z1" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V11', 1)">Z1</button>
+                        <small class="d-block mt-1 text-muted">V11</small>
+                    </div>
+                    <div class="col-3">
+                        <button id="btn-z2" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V12', 1)">Z2</button>
+                        <small class="d-block mt-1 text-muted">V12</small>
+                    </div>
+                    <div class="col-3">
+                        <button id="btn-z3" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V13', 1)">Z3</button>
+                        <small class="d-block mt-1 text-muted">V13</small>
+                    </div>
+                    <div class="col-3">
+                        <button id="btn-z4" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V14', 1)">Z4</button>
+                        <small class="d-block mt-1 text-muted">V14</small>
+                    </div>
+                </div>
+
+                <div class="row g-2 mt-auto">
+                    <div class="col-6">
+                        <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" onclick="updateBlynk('V2', 1)">
+                            <i class="bi bi-play-circle"></i> เปิดหมด (V2)
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-danger btn-lg w-100 fw-bold shadow-sm" onclick="updateBlynk('V3', 1)">
+                            <i class="bi bi-stop-circle"></i> ปิดหมด (V3)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-2 bg-light border rounded text-center">
+                    <small class="text-muted">LED สถานะ: V21, V22, V23, V24</small>
+                </div>
+            </div>
+        </div>
+
+
+                
                 <div class="card p-4 mb-4">
     <h5 class="fw-bold mb-3 text-success">
         <i class="bi bi-calendar-check"></i> สรุปเวลาทำงานทุกโซน
@@ -189,47 +233,7 @@
 
         
     </div>
-    <div class="col-lg-6">
-            <div class="card p-4 h-100">
-                <h5 class="fw-bold mb-4 text-success border-bottom pb-2"><i class="bi bi-droplets"></i> ควบคุมวาล์วรดน้ำ</h5>
-                
-                <div class="row g-3 mb-4 text-center">
-                    <div class="col-3">
-                        <button id="btn-z1" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V11', 1)">Z1</button>
-                        <small class="d-block mt-1 text-muted">V11</small>
-                    </div>
-                    <div class="col-3">
-                        <button id="btn-z2" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V12', 1)">Z2</button>
-                        <small class="d-block mt-1 text-muted">V12</small>
-                    </div>
-                    <div class="col-3">
-                        <button id="btn-z3" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V13', 1)">Z3</button>
-                        <small class="d-block mt-1 text-muted">V13</small>
-                    </div>
-                    <div class="col-3">
-                        <button id="btn-z4" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V14', 1)">Z4</button>
-                        <small class="d-block mt-1 text-muted">V14</small>
-                    </div>
-                </div>
-
-                <div class="row g-2 mt-auto">
-                    <div class="col-6">
-                        <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" onclick="updateBlynk('V2', 1)">
-                            <i class="bi bi-play-circle"></i> เปิดหมด (V2)
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button class="btn btn-danger btn-lg w-100 fw-bold shadow-sm" onclick="updateBlynk('V3', 1)">
-                            <i class="bi bi-stop-circle"></i> ปิดหมด (V3)
-                        </button>
-                    </div>
-                </div>
-
-                <div class="mt-4 p-2 bg-light border rounded text-center">
-                    <small class="text-muted">LED สถานะ: V21, V22, V23, V24</small>
-                </div>
-            </div>
-        </div>
+    
 </div>
 
 <script src="script.js"></script>
