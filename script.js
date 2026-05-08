@@ -37,12 +37,7 @@ function updateUI(pin, value) {
         v10Switch.checked = (cleanValue === "1");
     }
 
-    // --- ส่วนอัปเดตสีปุ่ม Zone ตามสถานะ LED (V21-V24) ---
-    const status = (cleanValue === "255" || cleanValue === "1");
-    if (pin === 'V21') updateBtnStyle('btn-z1', status);
-    if (pin === 'V22') updateBtnStyle('btn-z2', status);
-    if (pin === 'V23') updateBtnStyle('btn-z3', status);
-    if (pin === 'V24') updateBtnStyle('btn-z4', status);
+    
 
 
     // อัปเดตสีปุ่มตามสถานะ LED (255 คือเปิดใน Blynk Legacy)
