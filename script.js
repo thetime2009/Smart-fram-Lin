@@ -4,7 +4,7 @@ const BLYNK_URL = "http://blynk.iot-cm.com:8080/";
 async function fetchData() {
     try {
         // ดึงค่าเซนเซอร์ และสถานะไฟ LED (V21-V24)
-        const pins = ['V37', 'V36', 'V65', 'V29', 'V21', 'V22', 'V23', 'V24'];
+        const pins = ['V1', 'V0', 'V65', 'V18', 'V21', 'V22', 'V23', 'V24'];
         
         for (let pin of pins) {
             const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
@@ -24,10 +24,10 @@ function updateUI(pin, value) {
     let cleanValue = String(value).replace(/[\[\]" ]/g, ''); 
 
     // อัปเดตตัวเลขเซนเซอร์
-    if (pin === 'V37') document.getElementById('temp').innerText = cleanValue + "°C";
-    if (pin === 'V36') document.getElementById('soil').innerText = cleanValue + "%";
+    if (pin === 'V1') document.getElementById('temp').innerText = cleanValue + "°C";
+    if (pin === 'V0') document.getElementById('soil').innerText = cleanValue + "%";
     if (pin === 'V65') document.getElementById('rain').innerText = cleanValue;
-    if (pin === 'V29') document.getElementById('water_used').innerText = cleanValue;
+    if (pin === 'V18') document.getElementById('water_used').innerText = cleanValue;
 
     // อัปเดตสีปุ่มตามสถานะ LED (255 คือเปิดใน Blynk Legacy)
     const status = (cleanValue === "255" || cleanValue === "1");
