@@ -24,7 +24,7 @@ async function getBlynkData(pin) {
         });
 
         if (response.ok) {
-            const data = await response.json(); // 👈 เปลี่ยนตรงนี้
+            let rawData = await response.text(); // 👈 เปลี่ยนตรงนี้
 
             updateUI(pin, data); // 👈 ส่งเป็น array จริง
         }
