@@ -1,6 +1,7 @@
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 //const BLYNK_URL = "https://blynk.iot-cm.com:8080/"; 
-const BLYNK_URL = "https://api.allorigins.win/raw?url=http://blynk.iot-cm.com:8080/";
+//const BLYNK_URL = "https://api.allorigins.win/raw?url=http://blynk.iot-cm.com:8080/";
+const BLYNK_URL = "https://blynk-proxy.vercel.app/api/blynk?pin=";
 
 // =====================
 // ⏰ TIME FUNCTIONS
@@ -40,7 +41,7 @@ function parseBlynkTime(data) {
 async function getBlynkData(pin) {
     try {
         const response = await fetch(
-            `https://blynk-proxy.vercel.app/api/blynk?pin=${pin}&t=${Date.now()}`
+            `${BLYNK_URL}${pin}&t=${Date.now()}`
         );
 
         if (response.ok) {
