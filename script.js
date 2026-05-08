@@ -117,7 +117,7 @@ function updateUI(pin, cleanValue) {
     if (pin === 'V1') document.getElementById('temp').innerText = cleanValue + "°C";
     if (pin === 'V0') document.getElementById('humi').innerText = cleanValue + "%";
     if (pin === 'V65') document.getElementById('rain').innerText = cleanValue;
-    if (pin === 'V18') document.getElementById('water_used').innerText = cleanValue;
+    if (pin === 'V18') document.getElementById('water_used').innerText = cleanValue + "(ลิตร)";
     if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
     if (pin === 'V88') document.getElementById('soil').innerText = cleanValue + "%";
     
