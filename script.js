@@ -85,6 +85,39 @@ async function updateBlynk(pin, value) {
 function toggleBlynk(pin, isChecked) {
     updateBlynk(pin, isChecked ? 1 : 0);
 }
+function saveTimer() {
+    // 1. หาว่าผู้ใช้เลือกโซนไหน (V40, V41, V42 หรือ V43)
+    const selectedPin = document.querySelector('input[name="timer_zone"]:checked').value;
+    
+    // 2. ดึงค่าเวลาจาก input
+    const startStr = document.getElementById('start_t').value;
+    const stopStr = document.getElementById('stop_t').value;
+
+    if(!startStr || !stopStr) return alert("กรุณาระบุเวลา");
+
+    // 3. แปลงเวลาเป็นวินาที (Blynk Legacy API มักใช้หน่วยวินาทีสำหรับ Time Input)
+    const startSec = timeToSeconds(startStr);
+    const stopSec = timeToSeconds(stopStr);
+
+    // 4. ส่งค่าไปที่ Blynk (ส่งแบบ [startSeconds, stopSeconds, "timezone"])
+    // รูปแบบของ Time Input String: ["startSeconds", "stopSeconds", "timezone", "days"]
+    // สำหรับ Legacy เราจะส่งค่าลำดับแรกไปก่อนเพื่อให้บอร์ดทำงานเบื้องต้นได้
+    
+    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${selectedPin}?value=${startSec}&value=${stopSec}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
+    
+    const img = new Image();
+    img.src = url;
+    
+    alert(`บันทึกโซน ${selectedPin} เวลา ${startStr}-${stopStr} แล้ว`);
+}
+
+function timeToSeconds(timeStr) {
+    const [hrs, mins] = timeStr.split(':');
+    return (parseInt(hrs) * 3600) + (parseInt(mins) * 60);
+}
+
+
+
 
 // ตั้งเวลาดึงข้อมูลทุก 3 วินาที
 setInterval(fetchData, 3000);
