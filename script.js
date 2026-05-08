@@ -41,8 +41,8 @@ async function fetchData() {
 // --- ปรับปรุงฟังก์ชันจัดการเวลาโดยเฉพาะ ---
 function updateUI(pin, cleanValue) {
     if (!cleanValue) return;
-     // let parts = String(cleanValue).replace(/[\[\]"']/g, '').split(',');
-     // let val = parts[0];
+      let parts = String(cleanValue).replace(/[\[\]"']/g, '').split(',');
+      let val = parts[0];
 
     // --- เพิ่มส่วนอัปเดตสวิตช์วาล์ว V11 - V14 ---
     const valveSwitch = document.getElementById(`${pin.toLowerCase()}_switch`);
@@ -56,8 +56,8 @@ function updateUI(pin, cleanValue) {
 
     
     // ล้างอักขระส่วนเกินที่อาจหลุดมา (เช่น ช่องว่าง หรือเครื่องหมายคำพูด)
-    let raw = String(cleanValue).replace(/[\[\]"']/g, '');
-    let parts = raw.split(',');
+   // let raw = String(cleanValue).replace(/[\[\]"']/g, '');
+   // let parts = raw.split(',');
 
     // --- จัดการข้อมูลเวลา V40, V41, V42, V43 ---
     if (['V40', 'V41', 'V42', 'V43'].includes(pin)) {
