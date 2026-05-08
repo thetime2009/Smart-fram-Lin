@@ -1,174 +1,104 @@
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 
-// ฟังก์ชันหลักที่รันตอนเปิดหน้าเว็บ
-async function fetchData() {
-    try {
-        // รายชื่อ Pins ทั้งหมดที่ต้องดึงข้อมูล
-        const pins = ['V10', 'V1', 'V0', 'V65', 'V18', 'V105', 'V106', 'V11', 'V12', 'V13', 'V14', 'V21', 'V22', 'V23', 'V24', 'V27', 'V40', 'V41', 'V42', 'V43'];
-        
-        // ใช้ Promise.all เพื่อให้ดึงข้อมูลเร็วขึ้นพร้อมๆ กัน
-        await Promise.all(pins.map(async (pin) => {
-            const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
-            if (response.ok) {
-                const data = await response.json(); 
-                // ส่งข้อมูลไปอัปเดต UI โดยตรง
-                updateUI(pin, data);
-            }
-        }));
-    } catch (error) {
-        console.error("Initial Fetch Error:", error);
-    }
-}
-
 // ฟังก์ชันแปลง วินาที -> HH:mm
 function secondsToTime(seconds) {
-    if (isNaN(seconds) || seconds === null) return "--:--";
+    if (seconds === null || isNaN(seconds)) return "--:--";
     const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
     const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
     return `${hrs}:${mins}`;
 }
 
-// ฟังก์ชันแปลง HH:mm -> วินาที
-function timeToSeconds(timeStr) {
-    if (!timeStr) return 0;
-    const [hrs, mins] = timeStr.split(':');
-    return (parseInt(hrs) * 3600) + (parseInt(mins) * 60);
+// ฟังก์ชันดึงข้อมูลแบบเดี่ยว (ดึงมาโชว์ทันที)
+async function getBlynkData(pin) {
+    try {
+        const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
+        if (response.ok) {
+            const data = await response.json();
+            // Private Server มักส่งกลับมาเป็น Array [value]
+            updateUI(pin, data);
+        }
+    } catch (error) {
+        console.error(`Error fetching ${pin}:`, error);
+    }
+}
+
+// ฟังก์ชันหลักที่รันทุก 3 วินาที และรันตอนเปิดเว็บ
+async function fetchData() {
+    const pins = ['V10', 'V1', 'V0', 'V65', 'V18', 'V105', 'V106', 'V11', 'V12', 'V13', 'V14', 'V27', 'V40', 'V41', 'V42', 'V43'];
+    
+    // ดึงทุก Pin พร้อมกันเพื่อความเร็ว
+    await Promise.all(pins.map(pin => getBlynkData(pin)));
 }
 
 function updateUI(pin, value) {
     if (value === undefined || value === null) return;
-    // 1. จัดการข้อมูลเวลา (V40-V43) สำหรับแสดงในตาราง
+    
+    // ข้อมูลเวลา (V40-V43) - จัดการในรูปแบบ Array
     if (['V40', 'V41', 'V42', 'V43'].includes(pin)) {
-        try {
-            // ข้อมูลจาก Private Server มักมาเป็นรูปแบบ Array: [startSec, stopSec, TZ, Days]
-            const timeData = Array.isArray(value) ? value : JSON.parse(String(value).replace(/'/g, '"'));
-            
-            if (timeData && timeData.length >= 2) {
-                const startTime = secondsToTime(timeData[0]);
-                const stopTime = secondsToTime(timeData[1]);
+        // ดึงค่าจาก Array: [0]=StartSec, [1]=StopSec
+        if (Array.isArray(value) && value.length >= 2) {
+            const startTime = secondsToTime(value[0]);
+            const stopTime = secondsToTime(value[1]);
 
-                // แสดงผลในตาราง (ตรวจสอบ ID ใน HTML ให้ตรงกับ v40_start, v40_stop เป็นต้น)
-                const startElem = document.getElementById(`${pin.toLowerCase()}_start`);
-                const stopElem = document.getElementById(`${pin.toLowerCase()}_stop`);
-                
-                if (startElem) startElem.innerText = startTime;
-                if (stopElem) stopElem.innerText = stopTime;
+            // อัปเดตลงตารางสรุป
+            const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
+            const stopTable = document.getElementById(`${pin.toLowerCase()}_stop`);
+            if (startTable) startTable.innerText = startTime;
+            if (stopTable) stopTable.innerText = stopTime;
 
-                // ถ้าโซนที่ดึงมา ตรงกับโซนที่เลือกอยู่ในส่วน "แก้ไขการตั้งเวลา" ให้เอาค่าไปใส่ในช่อง Input ด้วย
-                const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
-                if (selectedZone && selectedZone.value === pin) {
-                    document.getElementById('start_t').value = startTime;
-                    document.getElementById('stop_t').value = stopTime;
-                }
+            // อัปเดตลงช่อง Input (ถ้าโซนนั้นถูกเลือกอยู่)
+            const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+            if (selectedZone && selectedZone.value === pin) {
+                document.getElementById('start_t').value = startTime;
+                document.getElementById('stop_t').value = stopTime;
             }
-        } catch (e) {
-            console.log("Error parsing time for " + pin);
         }
+        return;
     }
-    // ค่าสำหรับแสดงผลข้อความทั่วไป (ลบเครื่องหมายส่วนเกิน)
-    let cleanValue = String(value).replace(/[\[\]" ]/g, ''); 
 
-    // 1. อัปเดตตัวเลขเซนเซอร์
+    // ข้อมูลทั่วไป (เซนเซอร์/ปุ่ม)
+    let cleanValue = String(Array.isArray(value) ? value[0] : value).replace(/[\[\]" ]/g, '');
+
     if (pin === 'V1') document.getElementById('temp').innerText = cleanValue + "°C";
     if (pin === 'V0') document.getElementById('soil').innerText = cleanValue + "%";
-    if (pin === 'V65') document.getElementById('rain').innerText = cleanValue;
     if (pin === 'V18') document.getElementById('water_used').innerText = cleanValue;
     if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
-    if (pin === 'V106') document.getElementById('status_val').innerText = cleanValue;
+    
+    // สถานะคายน้ำ (อิงตามรูปที่คุณส่งมา)
+    if (pin === 'V106') {
+        let statusTxt = cleanValue;
+        if (cleanValue === "1") statusTxt = "คายน้ำสูง";
+        if (cleanValue === "2") statusTxt = "คายน้ำดีมาก";
+        document.getElementById('status_val').innerText = statusTxt;
+    }
 
-    // 2. อัปเดตปุ่ม Switch ระบบอัตโนมัติ (V10)
+    // ปุ่ม Switch V10
     if (pin === 'V10') {
-        const v10Switch = document.getElementById('v10_switch');
-        if (v10Switch) v10Switch.checked = (cleanValue === "1");
+        const sw = document.getElementById('v10_switch');
+        if (sw) sw.checked = (cleanValue === "1");
     }
 
-    // 3. อัปเดต Dropdown เลือกโหมด (V27)
-    if (pin === 'V27') {
-        const menu = document.getElementById('menu_select');
-        if (menu && menu.value !== cleanValue) menu.value = cleanValue;
-    }
-
-    // 4. การจัดการเวลาทุกโซน (V40-V43)
-    if (['V40', 'V41', 'V42', 'V43'].includes(pin)) {
-        try {
-            // แปลงข้อมูลจาก Blynk (มักมาเป็น Array [startSec, stopSec, timezone, days])
-            const timeData = Array.isArray(value) ? value : JSON.parse(String(value).replace(/'/g, '"'));
-            
-            if (timeData && timeData.length >= 2) {
-                const startTime = secondsToTime(timeData[0]);
-                const stopTime = secondsToTime(timeData[1]);
-
-                // --- อัปเดตลงในตารางสรุป (Table) ---
-                const startElem = document.getElementById(`${pin.toLowerCase()}_start`);
-                const stopElem = document.getElementById(`${pin.toLowerCase()}_stop`);
-                if (startElem) startElem.innerText = startTime;
-                if (stopElem) stopElem.innerText = stopTime;
-
-                // --- อัปเดตลงในฟอร์มแก้ไข (ถ้าโซนนั้นกำลังถูกเลือกอยู่) ---
-                const selectedZoneInput = document.querySelector('input[name="timer_zone"]:checked');
-                if (selectedZoneInput && selectedZoneInput.value === pin) {
-                    document.getElementById('start_t').value = startTime;
-                    document.getElementById('stop_t').value = stopTime;
-                }
-            }
-        } catch (e) {
-            console.warn(`Data for ${pin} is not in TimeInput format yet.`);
-        }
-    }
-
-    // 5. อัปเดตสีปุ่มควบคุมวาล์ว (Z1-Z4) ตามสถานะไฟ LED (V11-V14)
-    const status = (cleanValue === "255" || cleanValue === "1");
-    if (pin === 'V11') updateBtnStyle('btn-z1', status);
-    if (pin === 'V12') updateBtnStyle('btn-z2', status);
-    if (pin === 'V13') updateBtnStyle('btn-z3', status);
-    if (pin === 'V14') updateBtnStyle('btn-z4', status);
+    // สีปุ่มวาล์ว Z1-Z4
+    const isOn = (cleanValue === "255" || cleanValue === "1");
+    if (pin === 'V11') updateBtnStyle('btn-z1', isOn);
+    if (pin === 'V12') updateBtnStyle('btn-z2', isOn);
+    if (pin === 'V13') updateBtnStyle('btn-z3', isOn);
+    if (pin === 'V14') updateBtnStyle('btn-z4', isOn);
 }
 
 function updateBtnStyle(id, isOn) {
     const btn = document.getElementById(id);
     if (!btn) return;
     if (isOn) {
-        btn.classList.remove('btn-outline-success');
-        btn.classList.add('btn-success');
+        btn.classList.replace('btn-outline-success', 'btn-success');
     } else {
-        btn.classList.remove('btn-success');
-        btn.classList.add('btn-outline-success');
+        btn.classList.replace('btn-success', 'btn-outline-success');
     }
 }
 
-async function updateBlynk(pin, value) {
-    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
-    const img = new Image();
-    img.src = url; 
-    console.log(`Command sent: ${pin} = ${value}`);
-}
-
-function toggleBlynk(pin, isChecked) {
-    updateBlynk(pin, isChecked ? 1 : 0);
-}
-
-function saveTimer() {
-    const selectedPin = document.querySelector('input[name="timer_zone"]:checked').value;
-    const startStr = document.getElementById('start_t').value;
-    const stopStr = document.getElementById('stop_t').value;
-
-    if(!startStr || !stopStr) return alert("กรุณาระบุเวลาให้ครบถ้วน");
-
-    const startSec = timeToSeconds(startStr);
-    const stopSec = timeToSeconds(stopStr);
-
-    // รูปแบบการส่งค่าแบบ Time Input สำหรับ Private Server (Multi-value update)
-    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${selectedPin}?value=${startSec}&value=${stopSec}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
-    
-    const img = new Image();
-    img.src = url;
-    
-    alert(`บันทึกโซน ${selectedPin} เรียบร้อย: ${startStr} - ${stopStr}`);
-    // เรียก fetchData ทันทีเพื่อให้ตารางอัปเดต
-    setTimeout(fetchData, 1000);
-}
-
-// ตั้งเวลาดึงข้อมูลทุก 3 วินาที
-setInterval(fetchData, 3000);
-fetchData();
+// ส่วนสำคัญ: รันทันทีเมื่อโหลดหน้าเว็บเสร็จ
+document.addEventListener('DOMContentLoaded', () => {
+    fetchData(); 
+    setInterval(fetchData, 3000); 
+});
