@@ -37,7 +37,22 @@ function updateUI(pin, value) {
         // ถ้าค่าเป็น "1" ให้ติ๊กถูก (On) ถ้าเป็น "0" ให้เอาออก (Off)
         v10Switch.checked = (cleanValue === "1");
     }
+    // --- อัปเดต Dropdown เลือกโหมด (V27) ---
+    if (pin === 'V27') {
+        const menu = document.getElementById('menu_select');
+        if (menu && menu.value !== cleanValue) {
+            menu.value = cleanValue;
+        }
+    }
 
+    // --- อัปเดตการเลือกโซนตั้งเวลา (V40-V43) ---
+    // ถ้า Pin ไหนส่งค่า "1" มา ให้ปุ่มนั้นถูกเลือก
+    if (cleanValue === "1") {
+        if (pin === 'V40') document.getElementById('z1_timer').checked = true;
+        if (pin === 'V41') document.getElementById('z2_timer').checked = true;
+        if (pin === 'V42') document.getElementById('z3_timer').checked = true;
+        if (pin === 'V43') document.getElementById('z4_timer').checked = true;
+    }
     
 
 
