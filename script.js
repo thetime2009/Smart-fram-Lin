@@ -1,85 +1,151 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbw3sCj0MIpH4P-4Nslp0QTM4YhCM6pGIpIWDiyZ0aK02PJACXdzw1jXQfFdlMCEYEVtTQ/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzD5ZJ1VxVUGrclzA4iBZOfCmToPeTFOycqv5BCaboW6tq-id0gCrO3RzymBYoELI1s/exec";
+const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 
-// ================= TIME =================
 function minutesToTime(minutes) {
     if (minutes === null || isNaN(minutes) || minutes < 0) return "--:--";
     const hrs = Math.floor(minutes / 60).toString().padStart(2, '0');
     const mins = Math.floor(minutes % 60).toString().padStart(2, '0');
     return `${hrs}:${mins}`;
 }
-
 function timeToMinutes(timeStr) {
-    if (!timeStr) return 0;
     const [hrs, mins] = timeStr.split(':');
     return (parseInt(hrs) * 60) + parseInt(mins);
 }
 
-// ================= FETCH =================
+// 1. ดึงข้อมูลทีละ Pin เพื่อความชัวร์ (แก้ปัญหา JSON Error)
 async function getBlynkData(pin) {
     try {
-        const res = await fetch(`${API_URL}?action=get&pin=${pin}`);
-        const raw = await res.text();
-        updateUI(pin, raw.replace(/[\[\]"']/g, '').trim());
-    } catch (e) { console.error(e); }
+        const response = await fetch(`${API_URL}?pin=${pin}`);
+        const data = await response.json();
+
+        if (data.value !== undefined) {
+            updateUI(pin, data.value);
+        }
+    } catch (error) {
+        console.error(`Error fetching ${pin}:`, error);
+    }
 }
 
-function fetchData() {
-    ['V10','V1','V0','V65','V18','V105','V106','V11','V12','V13','V14','V27','V40','V41','V42','V43']
-    .forEach(pin => getBlynkData(pin));
+// 2. ฟังก์ชันหลัก: วนลูปดึงข้อมูลทุก Pin
+async function fetchData() {
+    const pins = ['V10', 'V1', 'V0', 'V65', 'V18', 'V105', 'V106', 'V11', 'V12', 'V13', 'V14', 'V27', 'V40', 'V41', 'V42', 'V43'];
+    // ใช้ for...of เพื่อให้ดึงทีละ Pin อย่างเป็นลำดับ (เสถียรกว่า)
+    for (const pin of pins) {
+        await getBlynkData(pin);
+    }
 }
 
-// ================= UI =================
-function updateUI(pin, val) {
+// --- ปรับปรุงฟังก์ชันจัดการเวลาโดยเฉพาะ ---
+function updateUI(pin, cleanValue) {
+    if (!cleanValue) return;
 
-    let parts = String(val).split(',');
+    // ล้างอักขระส่วนเกินที่อาจหลุดมา (เช่น ช่องว่าง หรือเครื่องหมายคำพูด)
+    let raw = String(cleanValue).replace(/[\[\]"']/g, '');
+    let parts = raw.split(',');
 
-    if (['V40','V41','V42','V43'].includes(pin)) {
-        let start = parseInt(parts[0]);
-        let stop = parseInt(parts[1]);
+    // --- จัดการข้อมูลเวลา V40, V41, V42, V43 ---
+    if (['V40', 'V41', 'V42', 'V43'].includes(pin)) {
+        // parts[0] คือ Start Sec, parts[1] คือ Stop Sec
+        if (parts.length >= 2) {
+            let startSec = parseInt(parts[0].trim());
+            let stopSec = parseInt(parts[1].trim());
 
-        document.getElementById(pin.toLowerCase()+"_start").innerText = minutesToTime(start);
-        document.getElementById(pin.toLowerCase()+"_stop").innerText = minutesToTime(stop);
+            // ตรวจสอบว่าต้องไม่เป็นค่าว่างหรือ NaN
+            let startTime = (!isNaN(startSec) && startSec !== -1) ? minutesToTime(startSec) : "--:--";
+            let stopTime = (!isNaN(stopSec) && stopSec !== -1) ? minutesToTime(stopSec) : "--:--";
+
+            // อัปเดตลงตาราง
+            const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
+            const stopTable = document.getElementById(`${pin.toLowerCase()}_stop`);
+            
+            if (startTable) startTable.innerText = startTime;
+            if (stopTable) stopTable.innerText = stopTime;
+
+            // ถ้าเลือกโซนนี้อยู่ ให้ใส่ค่าใน Input แก้ไขด้วย
+            const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+            if (selectedZone && selectedZone.value === pin) {
+                document.getElementById('start_t').value = (startTime !== "--:--" ? startTime : "");
+                document.getElementById('stop_t').value = (stopTime !== "--:--" ? stopTime : "");
+            }
+        }
         return;
     }
 
-    if (pin==='V1') document.getElementById('temp').innerText = val+"°C";
-    if (pin==='V0') document.getElementById('soil').innerText = val+"%";
-    if (pin==='V65') document.getElementById('rain').innerText = val;
-    if (pin==='V18') document.getElementById('water_used').innerText = val;
-    if (pin==='V105') document.getElementById('vpd_val').innerText = val;
-    if (pin==='V106') document.getElementById('status_val').innerText = val;
+    // --- ส่วนเซนเซอร์และสถานะ ---
+    if (pin === 'V1') document.getElementById('temp').innerText = cleanValue + "°C";
+    if (pin === 'V0') document.getElementById('soil').innerText = cleanValue + "%";
+    if (pin === 'V65') document.getElementById('rain').innerText = cleanValue;
+    if (pin === 'V18') document.getElementById('water_used').innerText = cleanValue;
+    if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
+    
+    if (pin === 'V106') {
+        const txt = cleanValue === "1" ? "คายน้ำสูง" : cleanValue === "2" ? "คายน้ำดีมาก" : cleanValue;
+        document.getElementById('status_val').innerText = txt;
+    }
 
-    if (pin==='V10') document.getElementById('v10_switch').checked = (val==="1");
+    if (pin === 'V10') {
+        const sw = document.getElementById('v10_switch');
+        if (sw) sw.checked = (cleanValue === "1");
+    }
 
-    const btnMap = {'V11':'btn-z1','V12':'btn-z2','V13':'btn-z3','V14':'btn-z4'};
-    if (btnMap[pin]) {
-        document.getElementById(btnMap[pin]).classList.toggle('btn-success', val==="1");
+    if (pin === 'V27') {
+        const menu = document.getElementById('menu_select');
+        if (menu) menu.value = cleanValue;
+    }
+
+    const isOn = (cleanValue === "255" || cleanValue === "1");
+    const btnMap = {'V11': 'btn-z1', 'V12': 'btn-z2', 'V13': 'btn-z3', 'V14': 'btn-z4'};
+    if (btnMap[pin]) updateBtnStyle(btnMap[pin], isOn);
+}
+
+function updateBtnStyle(id, isOn) {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    if (isOn) {
+        btn.classList.add('btn-success');
+        btn.classList.remove('btn-outline-success');
+    } else {
+        btn.classList.add('btn-outline-success');
+        btn.classList.remove('btn-success'); 
     }
 }
 
-// ================= CONTROL =================
-function updateBlynk(pin, value) {
-    fetch(`${API_URL}?action=update&pin=${pin}&value=${value}`);
+// 4. ส่วนการบันทึก (Save) และปุ่มกด
+async function updateBlynk(pin, value) {
+    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
+    const img = new Image();
+    img.src = url;
+    setTimeout(() => getBlynkData(pin), 1000);
 }
 
-function toggleBlynk(pin, state) {
-    updateBlynk(pin, state ? 1 : 0);
+function toggleBlynk(pin, isChecked) {
+    updateBlynk(pin, isChecked ? 1 : 0);
 }
 
-// ================= TIMER =================
 function saveTimer() {
-    const zone = document.querySelector('input[name="timer_zone"]:checked');
-    if (!zone) return alert("เลือกโซน");
+    const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+    if (!selectedZone) return alert("เลือกโซนก่อนครับ");
 
-    const start = timeToMinutes(document.getElementById('start_t').value);
-    const stop = timeToMinutes(document.getElementById('stop_t').value);
+    const pin = selectedZone.value;
+    const startStr = document.getElementById('start_t').value;
+    const stopStr = document.getElementById('stop_t').value;
 
-    fetch(`${API_URL}?action=timer&pin=${zone.value}&start=${start}&stop=${stop}`);
-    alert("บันทึกแล้ว");
+    if (!startStr || !stopStr) return alert("ระบุเวลาให้ครบครับ");
+
+    const startMin = timeToMinutes(startStr);
+const stopMin = timeToMinutes(stopStr);
+
+    // ส่งค่าแบบ Time Input: [Start, Stop, TZ, Days]
+    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${startMin}&value=${stopMin}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
+    const img = new Image();
+    img.src = url;
+    
+    alert(`บันทึกสำเร็จ: ${startStr} - ${stopStr}`);
+    setTimeout(() => getBlynkData(pin), 1500);
 }
 
-// ================= INIT =================
-document.addEventListener("DOMContentLoaded", ()=>{
-    fetchData();
-    setInterval(fetchData, 5000);
+// เริ่มต้น
+document.addEventListener('DOMContentLoaded', () => {
+    fetchData(); 
+    setInterval(fetchData, 5000); 
 });
