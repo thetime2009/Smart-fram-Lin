@@ -17,15 +17,21 @@ function timeToSeconds(timeStr) {
 // 1. ดึงข้อมูลทีละ Pin เพื่อความชัวร์ (แก้ปัญหา JSON Error)
 async function getBlynkData(pin) {
     try {
-        const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
+        // เพิ่มการระบุโหมด cors และป้องกันการเก็บ Cache ที่ทำให้ข้อมูลในมือถือไม่อัปเดต
+        const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`, {
+            method: 'GET',
+            mode: 'cors', 
+            cache: 'no-cache' 
+        });
+
         if (response.ok) {
             let rawData = await response.text();
-            // ล้างขยะอักขระ: [ ] " ' และตัวเว้นวรรค
             let cleanData = rawData.replace(/[\[\]"']/g, '').trim();
             updateUI(pin, cleanData); 
         }
     } catch (error) {
-        console.error(`Error fetching ${pin}:`, error);
+        // หาก Error ในมือถือจะแสดงให้เห็นใน Console
+        console.error(`มือถือดึงข้อมูล ${pin} ไม่ได้:`, error);
     }
 }
 
