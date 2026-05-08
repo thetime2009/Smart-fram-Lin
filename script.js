@@ -16,19 +16,17 @@ function timeToSeconds(timeStr) {
 }
 
 // --- 2. ฟังก์ชันดึงข้อมูล (Fetch Data) ---
-// 1. ปรับฟังก์ชันดึงข้อมูลให้รับแบบ text ก่อนเพื่อป้องกัน JSON Error
 async function getBlynkData(pin) {
     try {
         const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
         if (response.ok) {
-            // ดึงเป็น text แทน json เพื่อจัดการตัวอักษรแปลกๆ
+            // ดึงเป็น text เพื่อป้องกัน JSON Error จากอักขระพิเศษ
             let rawData = await response.text();
             
-            // ลบเครื่องหมาย " และ [ ] ออกให้หมดเพื่อให้เหลือแต่ค่าดิบๆ
-            let cleanData = rawData.replace(/[\[\]"]/g, '').trim();
+            // ล้างอักขระขยะ [ ] " ' และช่องว่างออกให้หมด
+            let cleanData = rawData.replace(/[\[\]"']/g, '').trim();
             
-            // ส่งค่าไปอัปเดต UI
-            updateUI(pin, cleanData, rawData); 
+            updateUI(pin, cleanData); 
         }
     } catch (error) {
         console.error(`Error fetching ${pin}:`, error);
@@ -37,54 +35,51 @@ async function getBlynkData(pin) {
 
 async function fetchData() {
     const pins = ['V10', 'V1', 'V0', 'V65', 'V18', 'V105', 'V106', 'V11', 'V12', 'V13', 'V14', 'V27', 'V40', 'V41', 'V42', 'V43'];
-    // ดึงทุก Pin พร้อมกันเพื่อความเร็วในการโหลดครั้งแรก
     await Promise.all(pins.map(pin => getBlynkData(pin)));
 }
 
-// --- 3. ฟังก์ชันอัปเดตหน้าจอ (UI Update) - ฉบับแก้ไขทางเทคนิค ---
-function updateUI(pin, value) {
-    if (value === undefined || value === null) return;
-
-    // แก้ไขปัญหาแรก: ล้างขยะ [ ] " และอักขระพิเศษออกจากข้อมูลก่อน
-    // เพราะข้อมูลจาก Server อาจมาเป็น ["123"] หรือ '123' หรือมีตัวขึ้นบรรทัดใหม่
-    let rawString = String(value).replace(/[\[\]"'\r\n\t]/g, '').trim();
+// --- 3. ฟังก์ชันอัปเดตหน้าจอ (UI Update) ---
+function updateUI(pin, cleanValue) {
+    if (cleanValue === undefined || cleanValue === null || cleanValue === "") return;
 
     // --- จัดการข้อมูลเวลา (V40-V43) ---
     if (['V40', 'V41', 'V42', 'V43'].includes(pin)) {
-        // ข้อมูลเวลาส่วนใหญ่จะมาในรูปแบบ "วินาทีเริ่ม,วินาทีจบ" เช่น "28800,32400"
-        let timeParts = rawString.split(',');
+        // แยกค่าด้วยคอมม่า (,) และล้างช่องว่างของแต่ละตัว
+        let timeParts = cleanValue.split(',').map(item => item.trim());
         
         if (timeParts.length >= 2) {
-            const startTime = secondsToTime(parseInt(timeParts[0]));
-            const stopTime = secondsToTime(parseInt(timeParts[1]));
+            const startSec = parseInt(timeParts[0]);
+            const stopSec = parseInt(timeParts[1]);
 
-            // เขียนลงตารางสรุป
-            const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
-            const stopTable = document.getElementById(`${pin.toLowerCase()}_stop`);
-            if (startTable) startTable.innerText = startTime;
-            if (stopTable) stopTable.innerText = stopTime;
+            // ตรวจสอบว่าแปลงเป็นตัวเลขได้จริง
+            if (!isNaN(startSec) && !isNaN(stopSec)) {
+                const startTime = secondsToTime(startSec);
+                const stopTime = secondsToTime(stopSec);
 
-            // เขียนลงช่อง Input (กรณีเลือกโซนนั้นอยู่)
-            const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
-            if (selectedZone && selectedZone.value === pin) {
-                document.getElementById('start_t').value = startTime;
-                document.getElementById('stop_t').value = stopTime;
+                // อัปเดตลงตาราง
+                const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
+                const stopTable = document.getElementById(`${pin.toLowerCase()}_stop`);
+                if (startTable) startTable.innerText = startTime;
+                if (stopTable) stopTable.innerText = stopTime;
+
+                // อัปเดตลงช่อง Input (ถ้าเลือกโซนนั้นอยู่)
+                const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+                if (selectedZone && selectedZone.value === pin) {
+                    document.getElementById('start_t').value = startTime;
+                    document.getElementById('stop_t').value = stopTime;
+                }
             }
         }
-        return; // จบการทำงานของโซนเวลา
+        return;
     }
 
-    // --- จัดการข้อมูลทั่วไป (เซนเซอร์ และ ปุ่ม) ---
-    let cleanValue = rawString;
-
-    // อัปเดตตัวเลขเซนเซอร์
+    // --- จัดการข้อมูลทั่วไป ---
     if (pin === 'V1') document.getElementById('temp').innerText = cleanValue + "°C";
     if (pin === 'V0') document.getElementById('soil').innerText = cleanValue + "%";
     if (pin === 'V65') document.getElementById('rain').innerText = cleanValue;
     if (pin === 'V18') document.getElementById('water_used').innerText = cleanValue;
     if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
     
-    // สถานะคายน้ำ
     if (pin === 'V106') {
         let statusTxt = cleanValue;
         if (cleanValue === "1") statusTxt = "คายน้ำสูง";
@@ -92,19 +87,16 @@ function updateUI(pin, value) {
         document.getElementById('status_val').innerText = statusTxt;
     }
 
-    // สวิตช์ V10
     if (pin === 'V10') {
         const sw = document.getElementById('v10_switch');
         if (sw) sw.checked = (cleanValue === "1");
     }
 
-    // เมนู V27
     if (pin === 'V27') {
         const menu = document.getElementById('menu_select');
         if (menu) menu.value = cleanValue;
     }
 
-    // อัปเดตสีปุ่มวาล์ว Z1-Z4 (รองรับทั้งค่า 1 และ 255)
     const isOn = (cleanValue === "255" || cleanValue === "1");
     if (pin === 'V11') updateBtnStyle('btn-z1', isOn);
     if (pin === 'V12') updateBtnStyle('btn-z2', isOn);
@@ -122,18 +114,12 @@ function updateBtnStyle(id, isOn) {
     }
 }
 
-// --- 4. ฟังก์ชันส่งคำสั่งกลับไปที่ Blynk (Control) ---
+// --- 4. ฟังก์ชันส่งคำสั่งกลับไปที่ Blynk ---
 async function updateBlynk(pin, value) {
-    try {
-        const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
-        const img = new Image(); // ใช้เทคนิค Image Beacon เพื่อส่งคำสั่งได้เร็วและลด CORS issue
-        img.src = url;
-        console.log(`Sent command to ${pin}: ${value}`);
-        // อัปเดตค่าหน้าเว็บทันทีหลังส่ง 1 วินาที
-        setTimeout(() => getBlynkData(pin), 1000);
-    } catch (error) {
-        console.error("Update Error:", error);
-    }
+    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
+    const img = new Image();
+    img.src = url;
+    setTimeout(() => getBlynkData(pin), 1000);
 }
 
 function toggleBlynk(pin, isChecked) {
@@ -153,20 +139,16 @@ function saveTimer() {
     const startSec = timeToSeconds(startStr);
     const stopSec = timeToSeconds(stopStr);
 
-    // ส่งค่าในรูปแบบ Time Input [Start, Stop, Timezone, Days]
     const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${startSec}&value=${stopSec}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
-    
     const img = new Image();
     img.src = url;
     
     alert(`บันทึกเวลาโซน ${pin} สำเร็จ (${startStr} - ${stopStr})`);
-    setTimeout(fetchData, 1000);
+    setTimeout(() => getBlynkData(pin), 1000);
 }
 
 // --- 5. เริ่มต้นการทำงาน ---
 document.addEventListener('DOMContentLoaded', () => {
-    // โหลดข้อมูลทันทีที่เปิดเว็บ
     fetchData(); 
-    // ตั้งเวลาโหลดซ้ำทุกๆ 3 วินาที
     setInterval(fetchData, 3000); 
 });
