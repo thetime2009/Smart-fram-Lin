@@ -126,7 +126,16 @@ function updateUI(pin, cleanValue) {
         document.getElementById('water_used').innerText = "0.00 (ลิตร)";
     }
 }
-    if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
+    // if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
+    if (pin === 'V105') {
+    // แปลงค่าเป็นตัวเลข แล้วกำหนดทศนิยม 2 ตำแหน่ง
+    let pvdVal = parseFloat(cleanValue);
+    if (!isNaN(pvdVal)) {
+        document.getElementById('vpd_val').innerText = pvdVal.toFixed(2);
+    } else {
+        document.getElementById('vpd_val').innerText = "0.00";
+    }
+}
     if (pin === 'V88') document.getElementById('soil').innerText = cleanValue + "%";
     
     if (pin === 'V106') {
