@@ -36,31 +36,28 @@ function parseBlynkTime(data) {
 // =====================
 // 📡 GET DATA
 // =====================
-function getBlynkData(pin) {
-    const url = `${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}?t=${Date.now()}`;
+async function getBlynkData(pin) {
+    try {
+        const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}?t=${Date.now()}`);
 
-    const xhr = new XMLHttpRequest(); // 🔥 ใช้แทน fetch
+        if (response.ok) {
+            let rawData = await response.text();
+            let data;
 
-    xhr.onreadystatechange = function () {
-        if (xhr.readyState === 4) {
-            if (xhr.status === 200) {
-                let data;
-                try {
-                    data = JSON.parse(xhr.responseText);
-                } catch {
-                    data = xhr.responseText;
-                }
-
-                updateUI(pin, data);
-            } else {
-                console.error("มือถือโหลดไม่ได้:", pin);
+            try {
+                data = JSON.parse(rawData);
+            } catch {
+                data = rawData;
             }
-        }
-    };
 
-    xhr.open("GET", url, true);
-    xhr.send();
+            updateUI(pin, data);
+        }
+
+    } catch (error) {
+        console.error(`โหลด ${pin} ไม่ได้:`, error);
+    }
 }
+
 // =====================
 // 🔁 LOOP FETCH
 // =====================
