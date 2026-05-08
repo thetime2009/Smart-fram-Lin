@@ -17,20 +17,19 @@ function timeToSeconds(timeStr) {
 // 1. ดึงข้อมูลทีละ Pin เพื่อความชัวร์ (แก้ปัญหา JSON Error)
 async function getBlynkData(pin) {
     try {
-        // เพิ่มการระบุโหมด cors และป้องกันการเก็บ Cache ที่ทำให้ข้อมูลในมือถือไม่อัปเดต
-        const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`, {
+        const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}?t=${Date.now()}`, {
             method: 'GET',
-            mode: 'cors', 
-            cache: 'no-cache' 
+            mode: 'cors',
+            cache: 'no-cache'
         });
 
         if (response.ok) {
-            let rawData = await response.text();
-            let cleanData = rawData.replace(/[\[\]"']/g, '').trim();
-            updateUI(pin, cleanData); 
+            const data = await response.json(); // 👈 เปลี่ยนตรงนี้
+
+            updateUI(pin, data); // 👈 ส่งเป็น array จริง
         }
+
     } catch (error) {
-        // หาก Error ในมือถือจะแสดงให้เห็นใน Console
         console.error(`มือถือดึงข้อมูล ${pin} ไม่ได้:`, error);
     }
 }
@@ -46,8 +45,10 @@ async function fetchData() {
 
 // --- ปรับปรุงฟังก์ชันจัดการเวลาโดยเฉพาะ ---
 function updateUI(pin, cleanValue) {
-    if (!cleanValue) return;
-    let parts = String(cleanValue).replace(/[\[\]"']/g, '').split(',');
+    function updateUI(pin, data) {
+    if (!data) return;
+
+    let parts = Array.isArray(data) ? data : String(data).split(',');
     let val = parts[0];
 
     // --- ส่วนเงื่อนไข Logic V10 ควบคุมการกด V11-V14 ---
@@ -87,31 +88,35 @@ function updateUI(pin, cleanValue) {
 
     // --- จัดการข้อมูลเวลา V40, V41, V42, V43 ---
     if (['V40', 'V41', 'V42', 'V43'].includes(pin)) {
-        // parts[0] คือ Start Sec, parts[1] คือ Stop Sec
-        if (parts.length >= 2) {
-            let startSec = parseInt(parts[0].trim());
-            let stopSec = parseInt(parts[1].trim());
 
-            // ตรวจสอบว่าต้องไม่เป็นค่าว่างหรือ NaN
-            let startTime = (!isNaN(startSec) && startSec !== -1) ? secondsToTime(startSec) : "--:--";
-            let stopTime = (!isNaN(stopSec) && stopSec !== -1) ? secondsToTime(stopSec) : "--:--";
+    let startSec = parseInt(parts[0]);
+    let stopSec = parseInt(parts[1]);
 
-            // อัปเดตลงตาราง
-            const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
-            const stopTable = document.getElementById(`${pin.toLowerCase()}_stop`);
-            
-            if (startTable) startTable.innerText = startTime;
-            if (stopTable) stopTable.innerText = stopTime;
+    let startTime = (!isNaN(startSec) && startSec !== -1) ? secondsToTime(startSec) : "--:--";
+    let stopTime = (!isNaN(stopSec) && stopSec !== -1) ? secondsToTime(stopSec) : "--:--";
 
-            // ถ้าเลือกโซนนี้อยู่ ให้ใส่ค่าใน Input แก้ไขด้วย
-            const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
-            if (selectedZone && selectedZone.value === pin) {
-                document.getElementById('start_t').value = (startTime !== "--:--" ? startTime : "");
-                document.getElementById('stop_t').value = (stopTime !== "--:--" ? stopTime : "");
-            }
-        }
-        return;
+    // 👇 เพิ่ม: ดึงวัน (days)
+    let days = parts[3] || "";
+    let dayText = days ? "Everyday" : "--";
+
+    // อัปเดตตาราง
+    const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
+    const stopTable = document.getElementById(`${pin.toLowerCase()}_stop`);
+    const dayTable = document.getElementById(`${pin.toLowerCase()}_day`);
+
+    if (startTable) startTable.innerText = startTime;
+    if (stopTable) stopTable.innerText = stopTime;
+    if (dayTable) dayTable.innerText = dayText;
+
+    // sync input
+    const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+    if (selectedZone && selectedZone.value === pin) {
+        document.getElementById('start_t').value = (startTime !== "--:--" ? startTime : "");
+        document.getElementById('stop_t').value = (stopTime !== "--:--" ? stopTime : "");
     }
+
+    return;
+}
 
     // --- ส่วนเซนเซอร์และสถานะ ---
     if (pin === 'V1') document.getElementById('temp').innerText = cleanValue + "°C";
