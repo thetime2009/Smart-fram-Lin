@@ -38,35 +38,37 @@ async function fetchData() {
     }
 }
 
-// 3. อัปเดตหน้าจอ (UI Update)
+// --- ปรับปรุงฟังก์ชันจัดการเวลาโดยเฉพาะ ---
 function updateUI(pin, cleanValue) {
     if (!cleanValue) return;
 
-    // --- ส่วนจัดการเวลา V40-V43 ---
+    // ล้างอักขระส่วนเกินที่อาจหลุดมา (เช่น ช่องว่าง หรือเครื่องหมายคำพูด)
+    let raw = String(cleanValue).replace(/[\[\]"']/g, '');
+    let parts = raw.split(',');
+
+    // --- จัดการข้อมูลเวลา V40, V41, V42, V43 ---
     if (['V40', 'V41', 'V42', 'V43'].includes(pin)) {
-        // แยกค่าด้วยคอมม่า และกรองเอาเฉพาะตัวเลข
-        let timeParts = cleanValue.split(',').map(v => v.trim());
-        
-        if (timeParts.length >= 2) {
-            const startSec = parseInt(timeParts[0]);
-            const stopSec = parseInt(timeParts[1]);
+        // parts[0] คือ Start Sec, parts[1] คือ Stop Sec
+        if (parts.length >= 2) {
+            let startSec = parseInt(parts[0].trim());
+            let stopSec = parseInt(parts[1].trim());
 
-            if (!isNaN(startSec) && !isNaN(stopSec)) {
-                const startTime = secondsToTime(startSec);
-                const stopTime = secondsToTime(stopSec);
+            // ตรวจสอบว่าต้องไม่เป็นค่าว่างหรือ NaN
+            let startTime = (!isNaN(startSec) && startSec !== -1) ? secondsToTime(startSec) : "--:--";
+            let stopTime = (!isNaN(stopSec) && stopSec !== -1) ? secondsToTime(stopSec) : "--:--";
 
-                // แสดงผลในตาราง
-                const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
-                const stopTable = document.getElementById(`${pin.toLowerCase()}_stop`);
-                if (startTable) startTable.innerText = startTime;
-                if (stopTable) stopTable.innerText = stopTime;
+            // อัปเดตลงตาราง
+            const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
+            const stopTable = document.getElementById(`${pin.toLowerCase()}_stop`);
+            
+            if (startTable) startTable.innerText = startTime;
+            if (stopTable) stopTable.innerText = stopTime;
 
-                // แสดงผลในช่อง Input (ถ้าโซนถูกเลือกอยู่)
-                const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
-                if (selectedZone && selectedZone.value === pin) {
-                    document.getElementById('start_t').value = startTime;
-                    document.getElementById('stop_t').value = stopTime;
-                }
+            // ถ้าเลือกโซนนี้อยู่ ให้ใส่ค่าใน Input แก้ไขด้วย
+            const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+            if (selectedZone && selectedZone.value === pin) {
+                document.getElementById('start_t').value = (startTime !== "--:--" ? startTime : "");
+                document.getElementById('stop_t').value = (stopTime !== "--:--" ? stopTime : "");
             }
         }
         return;
