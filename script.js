@@ -1,19 +1,17 @@
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
-// เปลี่ยนเป็นโดเมนและพอร์ตของ Private Server ที่คุณใช้งาน
 const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 
 async function fetchData() {
     try {
-        // ดึงค่าจาก Virtual Pins
         const pins = ['V37', 'V36', 'V65', 'V29'];
         
         for (let pin of pins) {
-            // โครงสร้าง API ของ Private Server: http://domain:port/auth_token/get/Vpin
             const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
             if (response.ok) {
                 const data = await response.json(); 
-                // ค่าที่ได้จาก Legacy มักจะเป็น Array เช่น [25.5]
-                updateUI(pin, data[0]);
+                // จัดการข้อมูล: ถ้ามาเป็น ["40"] ให้เอาแค่ 40
+                let value = Array.isArray(data) ? data[0] : data;
+                updateUI(pin, value);
             }
         }
     } catch (error) {
@@ -21,11 +19,33 @@ async function fetchData() {
     }
 }
 
+function updateUI(pin, value) {
+    // ลบตัวอักษรที่ไม่ใช่ตัวเลขหรือจุดทศนิยมออก (เช่น [ ] " )
+    if (value === undefined || value === null) return;
+    let cleanValue = String(value).replace(/[\[\]" ]/g, ''); 
+
+    const elementMap = {
+        'V37': 'temp',
+        'V36': 'soil',
+        'V65': 'rain',
+        'V29': 'water_used'
+    };
+
+    const elementId = elementMap[pin];
+    if (elementId) {
+        let suffix = "";
+        if (pin === 'V37') suffix = "°C";
+        if (pin === 'V36') suffix = "%";
+        
+        document.getElementById(elementId).innerText = cleanValue + suffix;
+    }
+}
+
 async function updateBlynk(pin, value) {
     try {
-        // โครงสร้าง API สำหรับสั่งงาน: http://domain:port/auth_token/update/Vpin?value=xxx
         const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
-        await fetch(url);
+        // ใช้โหมด no-cors หากเจอปัญหา Mixed Content บล็อกการส่ง
+        await fetch(url, { mode: 'no-cors' }); 
         console.log(`สั่งงานสำเร็จ: ${pin} เป็น ${value}`);
     } catch (error) {
         console.error("สั่งงานไม่สำเร็จ:", error);
@@ -38,10 +58,9 @@ function toggleBlynk(pin, isChecked) {
 }
 
 function stopAllRelays() {
-    // ปิดวาล์ว V1 ถึง V4
     ['V1', 'V2', 'V3', 'V4'].forEach(pin => updateBlynk(pin, 0));
 }
 
-// ตั้งเวลาดึงข้อมูลใหม่ทุก 3 วินาที (ไม่ควรเร็วเกินไปสำหรับ Private Server)
-setInterval(fetchData, 3000);
+// ปรับเวลาเป็น 5 วินาทีเพื่อลดภาระของ Private Server
+setInterval(fetchData, 5000);
 fetchData();
