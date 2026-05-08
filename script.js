@@ -4,7 +4,7 @@ const BLYNK_URL = "http://blynk.iot-cm.com:8080/";
 async function fetchData() {
     try {
         // ดึงค่าเซนเซอร์ และสถานะไฟ LED (V21-V24)
-        const pins = ['V10' , 'V1', 'V0', 'V65', 'V18', 'V105','V106', 'V11','V12','V13','V14','V21', 'V22', 'V23', 'V24', 'V27'];
+        const pins = ['V10' , 'V1', 'V0', 'V65', 'V18', 'V105','V106', 'V11','V12','V13','V14','V21', 'V22', 'V23', 'V24', 'V27', 'V40', 'V41', 'V42', 'V43', ];
         
         for (let pin of pins) {
             const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
