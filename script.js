@@ -143,7 +143,6 @@ const stopMin = timeToMinutes(stopStr);
     alert(`บันทึกสำเร็จ: ${startStr} - ${stopStr}`);
     setTimeout(() => getBlynkData(pin), 1500);
 }
- 
 
 // เริ่มต้น
 document.addEventListener('DOMContentLoaded', () => {
