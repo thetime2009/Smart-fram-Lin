@@ -1,6 +1,5 @@
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
-// const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
-const BLYNK_URL = "https://api.allorigins.win/raw?url=http://blynk.iot-cm.com:8080/";
+const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 
 // =====================
 // ⏰ TIME FUNCTIONS
