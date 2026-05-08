@@ -1,6 +1,6 @@
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
-
+console.log(pin, parts);
 function secondsToTime(seconds) {
     if (seconds === null || isNaN(seconds) || seconds < 0) return "--:--";
     const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
