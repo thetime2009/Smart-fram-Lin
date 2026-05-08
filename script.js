@@ -1,8 +1,7 @@
-//const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
-//const BLYNK_URL = "https://blynk.iot-cm.com:8080/"; 
-// ใช้ Proxy ของ cors-anywhere เพื่อหลอกเบราว์เซอร์
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
-const BLYNK_URL = "https://cors-anywhere.herokuapp.com/http://blynk.iot-cm.com:8080/";
+const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
+
+
 
 // หมายเหตุ: การใช้ Proxy นี้ ครั้งแรกคุณอาจต้องเข้าไปที่ 
 // https://cors-anywhere.herokuapp.com/corsdemo เพื่อกดปุ่ม "Request temporary access" ก่อนครับ
