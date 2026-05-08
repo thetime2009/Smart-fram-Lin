@@ -7,7 +7,15 @@ function secondsToTime(seconds) {
     const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
     return `${hrs}:${mins}`;
 }
+function minutesToTime(min) {
+    if (!min || min === "0") return "--:--";
 
+    let minutes = parseInt(min);
+    let h = Math.floor(minutes / 60);
+    let m = minutes % 60;
+
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
 function timeToSeconds(timeStr) {
     if (!timeStr) return 0;
     const [hrs, mins] = timeStr.split(':');
@@ -55,25 +63,40 @@ async function fetchData() {
     function updateUI(pin, data) {
     if (!data) return;
 
-    let parts = Array.isArray(data) ? data : String(data).split(',');
+    // แปลง data เป็น array
+    let parts = Array.isArray(data) ? data : String(data).replace(/[\[\]"']/g, '').split(',');
     let val = parts[0];
-    let cleanValue = val; // 👈 เพิ่มบรรทัดนี้
+    let cleanValue = val;
 
-    // --- ส่วนเงื่อนไข Logic V10 ควบคุมการกด V11-V14 ---
+    // 🔥 แปลง "นาที" → "HH:MM"
+    function minutesToTime(min) {
+        if (!min || min === "0") return "--:--";
+
+        let m = parseInt(min);
+        if (isNaN(m)) return "--:--";
+
+        let h = Math.floor(m / 60);
+        let mm = m % 60;
+
+        return `${String(h).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+    }
+
+    // =========================
+    // 🔧 V10 AUTO MODE CONTROL
+    // =========================
     if (pin === 'V10') {
-        const isAuto = (val === "1"); // เช็กว่า Auto เปิดอยู่หรือไม่
+        const isAuto = (val === "1");
+
         const v10Switch = document.getElementById('v10_switch');
         if (v10Switch) v10Switch.checked = isAuto;
 
-        // รายชื่อ ID ของสวิตช์ที่ต้องการ Lock
         const zonePins = ['v11_switch', 'v12_switch', 'v13_switch', 'v14_switch'];
-        
+
         zonePins.forEach(id => {
             const sw = document.getElementById(id);
             if (sw) {
-                sw.disabled = isAuto; // ถ้า Auto เป็น True (เปิด) สวิตช์จะกดไม่ได้ (Disabled)
-                
-                // ถ้าเปิด Auto ให้รีเซ็ตสวิตช์ Zone เป็นปิด (0) ตามที่คุณต้องการ
+                sw.disabled = isAuto;
+
                 if (isAuto) {
                     sw.checked = false;
                 }
@@ -81,93 +104,99 @@ async function fetchData() {
         });
     }
 
-    // --- ส่วนอัปเดตสถานะสวิตช์ V11 - V14 (เมื่อไม่ได้โดน Lock) ---
+    // =========================
+    // 🔧 SWITCH V11-V14
+    // =========================
     const valveSwitch = document.getElementById(`${pin.toLowerCase()}_switch`);
     if (valveSwitch) {
         valveSwitch.checked = (val === "1" || val === "255");
     }
 
-    // ... (โค้ดจัดการเซนเซอร์และเวลา V40-V43 ส่วนเดิมของคุณ) ...
-
-    
-    // ล้างอักขระส่วนเกินที่อาจหลุดมา (เช่น ช่องว่าง หรือเครื่องหมายคำพูด)
-   // let raw = String(cleanValue).replace(/[\[\]"']/g, '');
-   // let parts = raw.split(',');
-
-    // --- จัดการข้อมูลเวลา V40, V41, V42, V43 ---
+    // =========================
+    // ⏰ TIME INPUT V40-V43
+    // =========================
     if (['V40', 'V41', 'V42', 'V43'].includes(pin)) {
 
-    let startSec = parseInt(parts[0]);
-    let stopSec = parseInt(parts[1]);
+        let startMin = parseInt(parts[0]);
+        let stopMin  = parseInt(parts[1]);
+        let days     = parts[2] || "";
 
-    let startTime = (!isNaN(startSec) && startSec !== -1) ? secondsToTime(startSec) : "--:--";
-    let stopTime = (!isNaN(stopSec) && stopSec !== -1) ? secondsToTime(stopSec) : "--:--";
+        let startTime = (!isNaN(startMin) && startMin !== -1) ? minutesToTime(startMin) : "--:--";
+        let stopTime  = (!isNaN(stopMin)  && stopMin !== -1)  ? minutesToTime(stopMin)  : "--:--";
 
-    // 👇 เพิ่ม: ดึงวัน (days)
-    let days = parts[3] || "";
-    let dayText = days ? "Everyday" : "--";
+        let dayText = days ? "Everyday" : "--";
 
-    // อัปเดตตาราง
-    const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
-    const stopTable = document.getElementById(`${pin.toLowerCase()}_stop`);
-    const dayTable = document.getElementById(`${pin.toLowerCase()}_day`);
+        // 👉 อัปเดตตาราง
+        const startTable = document.getElementById(`${pin.toLowerCase()}_start`);
+        const stopTable  = document.getElementById(`${pin.toLowerCase()}_stop`);
+        const dayTable   = document.getElementById(`${pin.toLowerCase()}_day`);
 
-    if (startTable) startTable.innerText = startTime;
-    if (stopTable) stopTable.innerText = stopTime;
-    if (dayTable) dayTable.innerText = dayText;
+        if (startTable) startTable.innerText = startTime;
+        if (stopTable)  stopTable.innerText  = stopTime;
+        if (dayTable)   dayTable.innerText   = dayText;
 
-    // sync input
-    const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
-    if (selectedZone && selectedZone.value === pin) {
-        document.getElementById('start_t').value = (startTime !== "--:--" ? startTime : "");
-        document.getElementById('stop_t').value = (stopTime !== "--:--" ? stopTime : "");
+        // 👉 sync input ด้านล่าง
+        const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+        if (selectedZone && selectedZone.value === pin) {
+            document.getElementById('start_t').value = (startTime !== "--:--") ? startTime : "";
+            document.getElementById('stop_t').value  = (stopTime !== "--:--")  ? stopTime  : "";
+        }
+
+        return;
     }
 
-    return;
-}
-
-    // --- ส่วนเซนเซอร์และสถานะ ---
+    // =========================
+    // 🌡️ SENSOR
+    // =========================
     if (pin === 'V1') document.getElementById('temp').innerText = cleanValue + "°C";
     if (pin === 'V0') document.getElementById('humi').innerText = cleanValue + "%";
     if (pin === 'V65') document.getElementById('rain').innerText = cleanValue;
+
     if (pin === 'V18') {
-    // แปลงค่าเป็นตัวเลข แล้วกำหนดทศนิยม 2 ตำแหน่ง
-    let waterVal = parseFloat(cleanValue);
-    if (!isNaN(waterVal)) {
-        document.getElementById('water_used').innerText = waterVal.toFixed(2) + " (ลิตร)";
-    } else {
-        document.getElementById('water_used').innerText = "0.00 (ลิตร)";
+        let waterVal = parseFloat(cleanValue);
+        document.getElementById('water_used').innerText = !isNaN(waterVal)
+            ? waterVal.toFixed(2) + " (ลิตร)"
+            : "0.00 (ลิตร)";
     }
-}
-    // if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
+
     if (pin === 'V105') {
-    // แปลงค่าเป็นตัวเลข แล้วกำหนดทศนิยม 2 ตำแหน่ง
-    let pvdVal = parseFloat(cleanValue);
-    if (!isNaN(pvdVal)) {
-        document.getElementById('vpd_val').innerText = pvdVal.toFixed(2);
-    } else {
-        document.getElementById('vpd_val').innerText = "0.00";
+        let vpdVal = parseFloat(cleanValue);
+        document.getElementById('vpd_val').innerText = !isNaN(vpdVal)
+            ? vpdVal.toFixed(2)
+            : "0.00";
     }
-}
+
     if (pin === 'V88') document.getElementById('soil').innerText = cleanValue + "%";
-    
+
     if (pin === 'V106') {
-        const txt = cleanValue === "1" ? "คายน้ำสูง" : cleanValue === "2" ? "คายน้ำดีมาก" : cleanValue;
+        const txt =
+            cleanValue === "1" ? "คายน้ำสูง" :
+            cleanValue === "2" ? "คายน้ำดีมาก" :
+            cleanValue;
+
         document.getElementById('status_val').innerText = txt;
     }
 
-    if (pin === 'V10') {
-        const sw = document.getElementById('v10_switch');
-        if (sw) sw.checked = (cleanValue === "1");
-    }
-
+    // =========================
+    // 🔧 MODE SELECT
+    // =========================
     if (pin === 'V27') {
         const menu = document.getElementById('menu_select');
         if (menu) menu.value = cleanValue;
     }
 
+    // =========================
+    // 🎛️ BUTTON UI
+    // =========================
     const isOn = (cleanValue === "255" || cleanValue === "1");
-    const btnMap = {'V11': 'btn-z1', 'V12': 'btn-z2', 'V13': 'btn-z3', 'V14': 'btn-z4'};
+
+    const btnMap = {
+        'V11': 'btn-z1',
+        'V12': 'btn-z2',
+        'V13': 'btn-z3',
+        'V14': 'btn-z4'
+    };
+
     if (btnMap[pin]) updateBtnStyle(btnMap[pin], isOn);
 }
 
