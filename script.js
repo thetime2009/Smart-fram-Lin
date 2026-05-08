@@ -119,7 +119,7 @@ function updateUI(pin, cleanValue) {
     if (pin === 'V65') document.getElementById('rain').innerText = cleanValue;
     if (pin === 'V18') document.getElementById('water_used').innerText = cleanValue;
     if (pin === 'V105') document.getElementById('vpd_val').innerText = cleanValue;
-    if (pin === 'V88') document.getElementById('soil').innerText = cleanValue;
+    if (pin === 'V88') document.getElementById('soil').innerText = cleanValue + "%";
     
     if (pin === 'V106') {
         const txt = cleanValue === "1" ? "คายน้ำสูง" : cleanValue === "2" ? "คายน้ำดีมาก" : cleanValue;
