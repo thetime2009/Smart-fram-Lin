@@ -195,25 +195,55 @@
             </div>
 
             <div class="card p-4">
-                <h5 class="fw-bold mb-4 d-flex align-items-center">
-                    <span class="icon-box bg-rain me-2 mb-0" style="width:35px; height:35px;"><i class="bi bi-water"></i></span>
-                    ควบคุมวาล์วอิสระ
-                </h5>
-                <div class="row g-3 mb-4">
-                    <div class="col-3"><button id="btn-z1" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V11', 1)">ZONE-1</button></div>
-                    <div class="col-3"><button id="btn-z2" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V12', 1)">ZONE-2</button></div>
-                    <div class="col-3"><button id="btn-z3" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V13', 1)">ZONE-3</button></div>
-                    <div class="col-3"><button id="btn-z4" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V14', 1)">ZONE-4</button></div>
-                </div>
-                <div class="row g-3">
-                    <div class="col-6">
-                        <button class="btn btn-success w-100 fw-bold shadow" onclick="updateBlynk('V2', 1)">เปิดทั้งหมด</button>
-                    </div>
-                    <div class="col-6">
-                        <button class="btn btn-danger w-100 fw-bold shadow" onclick="updateBlynk('V3', 1)">ปิดทั้งหมด</button>
-                    </div>
+    <h5 class="fw-bold mb-4 d-flex align-items-center">
+        <span class="icon-box bg-rain me-2 mb-0" style="width:35px; height:35px;"><i class="bi bi-water"></i></span>
+        ควบคุมวาล์วอิสระ (Manual)
+    </h5>
+    
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="p-2 border rounded-4 bg-light text-center">
+                <span class="fw-bold d-block small mb-2">Zone 1</span>
+                <div class="form-check form-switch fs-2 d-flex justify-content-center">
+                    <input class="form-check-input" type="checkbox" id="v11_switch" onchange="toggleBlynk('V11', this.checked)">
                 </div>
             </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="p-2 border rounded-4 bg-light text-center">
+                <span class="fw-bold d-block small mb-2">Zone 2</span>
+                <div class="form-check form-switch fs-2 d-flex justify-content-center">
+                    <input class="form-check-input" type="checkbox" id="v12_switch" onchange="toggleBlynk('V12', this.checked)">
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="p-2 border rounded-4 bg-light text-center">
+                <span class="fw-bold d-block small mb-2">Zone 3</span>
+                <div class="form-check form-switch fs-2 d-flex justify-content-center">
+                    <input class="form-check-input" type="checkbox" id="v13_switch" onchange="toggleBlynk('V13', this.checked)">
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="p-2 border rounded-4 bg-light text-center">
+                <span class="fw-bold d-block small mb-2">Zone 4</span>
+                <div class="form-check form-switch fs-2 d-flex justify-content-center">
+                    <input class="form-check-input" type="checkbox" id="v14_switch" onchange="toggleBlynk('V14', this.checked)">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-6">
+            <button class="btn btn-success w-100 fw-bold shadow-sm py-3" onclick="updateBlynk('V2', 1)">เปิดทั้งหมด</button>
+        </div>
+        <div class="col-6">
+            <button class="btn btn-danger w-100 fw-bold shadow-sm py-3" onclick="updateBlynk('V3', 1)">ปิดทั้งหมด</button>
+        </div>
+    </div>
+</div>
         </div>
 
         <div class="col-lg-6">
