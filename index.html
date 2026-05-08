@@ -7,93 +7,138 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
-        body { background-color: #f4f7f6; }
-        .card { border-radius: 15px; border: none; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .status-on { color: #28a745; font-weight: bold; }
-        .status-off { color: #dc3545; font-weight: bold; }
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { border-radius: 15px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.08); transition: 0.3s; }
+        .card:hover { transform: translateY(-5px); }
+        .btn-zone { font-weight: bold; padding: 12px 5px; }
+        header { background: linear-gradient(135deg, #28a745, #20c997); color: white; padding: 20px 0; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; margin-bottom: 30px; }
     </style>
 </head>
 <body>
 
-<div class="container py-4">
-    <header class="text-center mb-4">
-        <h2 class="fw-bold text-success"><i class="bi bi-leaf"></i> Smart Farm Control</h2>
-        <p class="text-muted">ควบคุมระบบรดน้ำผ่าน GitHub Pages</p>
-    </header>
+<header class="text-center shadow">
+    <h2 class="fw-bold"><i class="bi bi-tree-fill"></i> Smart Farm Control</h2>
+    <p class="mb-0 opacity-75">ระบบควบคุมการรดน้ำอัตโนมัติ (Private Server)</p>
+</header>
 
-    <!-- Monitoring Section -->
+<div class="container pb-5">
     <div class="row g-3 mb-4 text-center">
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4 col-lg-2">
             <div class="card p-3">
-                <i class="bi bi-thermometer-half text-danger fs-1"></i>
+                <i class="bi bi-thermometer-half text-danger fs-2"></i>
                 <div class="text-muted small">อุณหภูมิ</div>
-                <h3 id="temp">--</h3>
+                <h4 id="temp" class="fw-bold mb-0">--</h4>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4 col-lg-2">
             <div class="card p-3">
-                <i class="bi bi-droplets text-primary fs-1"></i>
+                <i class="bi bi-droplets-fill text-primary fs-2"></i>
                 <div class="text-muted small">ความชื้นดิน</div>
-                <h3 id="soil">--</h3>
+                <h4 id="soil" class="fw-bold mb-0">--</h4>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4 col-lg-2">
             <div class="card p-3">
-                <i class="bi bi-cloud-rain text-info fs-1"></i>
+                <i class="bi bi-cloud-rain-heavy text-info fs-2"></i>
                 <div class="text-muted small">ปริมาณฝน</div>
-                <h3 id="rain">--</h3>
+                <h4 id="rain" class="fw-bold mb-0">--</h4>
             </div>
         </div>
-        <div class="col-6 col-md-3">
+        <div class="col-6 col-md-4 col-lg-2">
             <div class="card p-3">
-                <i class="bi bi-water text-warning fs-1"></i>
-                <div class="text-muted small">น้ำที่ใช้ (ลิตร)</div>
-                <h3 id="water_used">--</h3>
+                <i class="bi bi-speedometer text-warning fs-2"></i>
+                <div class="text-muted small">ค่า VPD</div>
+                <h4 id="vpd_val" class="fw-bold mb-0">--</h4>
+            </div>
+        </div>
+        <div class="col-12 col-md-8 col-lg-4">
+            <div class="card p-3 h-100 d-flex flex-row align-items-center justify-content-around">
+                <div class="text-center">
+                    <i class="bi bi-water text-primary fs-2"></i>
+                    <div class="text-muted small">น้ำที่ใช้ (ลิตร)</div>
+                </div>
+                <h3 id="water_used" class="fw-bold text-primary mb-0">--</h3>
             </div>
         </div>
     </div>
 
-    <!-- Control Section -->
-    <div class="row g-3">
-        <!-- Main Mode Switch -->
-        <div class="col-md-6">
-            <div class="card p-4">
-                <h5 class="mb-3">โหมดการทำงาน</h5>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span>ระบบอัตโนมัติ (V10)</span>
-                    <div class="form-check form-switch">
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card p-4 h-100">
+                <h5 class="fw-bold mb-4 text-success border-bottom pb-2"><i class="bi bi-gear-fill"></i> ตั้งค่าโหมดการทำงาน</h5>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4 p-3 bg-light rounded">
+                    <div>
+                        <span class="fw-bold d-block">ระบบอัตโนมัติ (V10)</span>
+                        <small class="text-muted">เปิด/ปิด การควบคุมอัตโนมัติ</small>
+                    </div>
+                    <div class="form-check form-switch fs-3">
                         <input class="form-check-input" type="checkbox" id="v10_switch" onchange="toggleBlynk('V10', this.checked)">
                     </div>
                 </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <span>เลือกโหมด (1:เวลา / 2:ความชื้น)</span>
-                    <select class="form-select w-50" id="menu_select" onchange="updateBlynk('V27', this.value)">
-                        <option value="1">ตั้งเวลา</option>
-                        <option value="2">ความชื้น</option>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold small">เลือกรูปแบบการทำงาน (V27)</label>
+                    <select class="form-select form-select-lg" id="menu_select" onchange="updateBlynk('V27', this.value)">
+                        <option value="1">⏱️ โหมดตั้งเวลา (Time Mode)</option>
+                        <option value="2">💧 โหมดความชื้น (Humidity Mode)</option>
                     </select>
+                </div>
+
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button class="btn btn-outline-dark w-100 py-3" onclick="updateBlynk('V7', 1)">
+                            <i class="bi bi-lightbulb"></i> เปิดไฟ (V7)
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-outline-dark w-100 py-3" onclick="updateBlynk('V8', 1)">
+                            <i class="bi bi-volume-up"></i> เสียงเตือน (V8)
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Relay Control -->
-        <div class="col-md-6">
+        <div class="col-lg-6">
             <div class="card p-4 h-100">
-                <h5 class="mb-3">ควบคุมวาล์วแยกโซน</h5>
-                <div class="row text-center">
+                <h5 class="fw-bold mb-4 text-success border-bottom pb-2"><i class="bi bi-droplets"></i> ควบคุมวาล์วรดน้ำ</h5>
+                
+                <div class="row g-3 mb-4 text-center">
                     <div class="col-3">
-                        <button class="btn btn-outline-success w-100" onclick="updateBlynk('V1', 1)">Z1</button>
+                        <button id="btn-z1" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V11', 1)">Z1</button>
+                        <small class="d-block mt-1 text-muted">V11</small>
                     </div>
                     <div class="col-3">
-                        <button class="btn btn-outline-success w-100" onclick="updateBlynk('V2', 1)">Z2</button>
+                        <button id="btn-z2" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V12', 1)">Z2</button>
+                        <small class="d-block mt-1 text-muted">V12</small>
                     </div>
                     <div class="col-3">
-                        <button class="btn btn-outline-success w-100" onclick="updateBlynk('V3', 1)">Z3</button>
+                        <button id="btn-z3" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V13', 1)">Z3</button>
+                        <small class="d-block mt-1 text-muted">V13</small>
                     </div>
                     <div class="col-3">
-                        <button class="btn btn-outline-success w-100" onclick="updateBlynk('V4', 1)">Z4</button>
+                        <button id="btn-z4" class="btn btn-outline-success w-100 btn-zone" onclick="updateBlynk('V14', 1)">Z4</button>
+                        <small class="d-block mt-1 text-muted">V14</small>
                     </div>
                 </div>
-                <button class="btn btn-danger mt-3 w-100" onclick="stopAllRelays()">ปิดวาล์วทั้งหมด</button>
+
+                <div class="row g-2 mt-auto">
+                    <div class="col-6">
+                        <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" onclick="updateBlynk('V2', 1)">
+                            <i class="bi bi-play-circle"></i> เปิดหมด (V2)
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-danger btn-lg w-100 fw-bold shadow-sm" onclick="updateBlynk('V3', 1)">
+                            <i class="bi bi-stop-circle"></i> ปิดหมด (V3)
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mt-4 p-2 bg-light border rounded text-center">
+                    <small class="text-muted">LED สถานะ: V21, V22, V23, V24</small>
+                </div>
             </div>
         </div>
     </div>
