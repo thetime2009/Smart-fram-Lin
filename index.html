@@ -239,43 +239,114 @@
             </div>
         </div>
 
-        <!-- 3. TAB CONFIG -->
-        <div class="tab-pane fade" id="tab-config" role="tabpanel">
-            <div class="card p-4 mb-4">
-                <h5 class="fw-bold mb-4 d-flex align-items-center">
-                    <span class="icon-box bg-vpd me-2 mb-0" style="width:35px; height:35px;"><i class="bi bi-clock-history"></i></span>
-                    สรุปตารางเวลา
-                </h5>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead><tr class="text-center small"><th>โซน</th><th>เริ่ม</th><th>จบ</th></tr></thead>
-                        <tbody class="text-center">
-                            <tr><td>โซน 1</td><td id="v40_start" class="fw-bold text-success">--:--</td><td id="v40_stop" class="text-danger">--:--</td></tr>
-                            <tr><td>โซน 2</td><td id="v41_start" class="fw-bold text-success">--:--</td><td id="v41_stop" class="text-danger">--:--</td></tr>
-                            <tr><td>โซน 3</td><td id="v42_start" class="fw-bold text-success">--:--</td><td id="v42_stop" class="text-danger">--:--</td></tr>
-                            <tr><td>โซน 4</td><td id="v43_start" class="fw-bold text-success">--:--</td><td id="v43_stop" class="text-danger">--:--</td></tr>
-                            <!-- เพิ่มแถว Zone อื่นๆ ตามโค้ดเดิม -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <!-- 3. TAB CONFIG (REVISED) -->
+<div class="tab-pane fade" id="tab-config" role="tabpanel">
+    
+    <!-- ส่วนแสดงผลตารางเวลา 2 รอบ -->
+    <div class="card p-4 mb-4">
+        <h5 class="fw-bold mb-4 d-flex align-items-center">
+            <span class="icon-box bg-vpd me-2 mb-0" style="width:35px; height:35px;"><i class="bi bi-clock-history"></i></span>
+            สรุปตารางเวลาการทำงาน
+        </h5>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr class="text-center small">
+                        <th rowspan="2" class="align-middle border-end">โซน</th>
+                        <th colspan="2" class="bg-light border-bottom">รอบที่ 1</th>
+                        <th colspan="2" class="border-bottom">รอบที่ 2</th>
+                    </tr>
+                    <tr class="text-center small">
+                        <th class="text-success bg-light">เริ่ม</th>
+                        <th class="text-danger bg-light border-end">จบ</th>
+                        <th class="text-success">เริ่ม</th>
+                        <th class="text-danger">จบ</th>
+                    </tr>
+                </thead>
+                <tbody class="text-center">
+                    <!-- โซน 1 -->
+                    <tr>
+                        <td class="fw-bold border-end">โซน 1</td>
+                        <td id="v40_start" class="bg-light">--:--</td>
+                        <td id="v40_stop" class="bg-light border-end">--:--</td>
+                        <td id="v44_start">--:--</td>
+                        <td id="v44_stop">--:--</td>
+                    </tr>
+                    <!-- โซน 2 -->
+                    <tr>
+                        <td class="fw-bold border-end">โซน 2</td>
+                        <td id="v41_start" class="bg-light">--:--</td>
+                        <td id="v41_stop" class="bg-light border-end">--:--</td>
+                        <td id="v45_start">--:--</td>
+                        <td id="v45_stop">--:--</td>
+                    </tr>
+                    <!-- โซน 3 -->
+                    <tr>
+                        <td class="fw-bold border-end">โซน 3</td>
+                        <td id="v42_start" class="bg-light">--:--</td>
+                        <td id="v42_stop" class="bg-light border-end">--:--</td>
+                        <td id="v46_start">--:--</td>
+                        <td id="v46_stop">--:--</td>
+                    </tr>
+                    <!-- โซน 4 -->
+                    <tr>
+                        <td class="fw-bold border-end">โซน 4</td>
+                        <td id="v43_start" class="bg-light">--:--</td>
+                        <td id="v43_stop" class="bg-light border-end">--:--</td>
+                        <td id="v47_start">--:--</td>
+                        <td id="v47_stop">--:--</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-            <div class="card p-4 border-start border-primary border-4">
-                <h5 class="fw-bold mb-4 text-primary">แก้ไขการตั้งเวลา</h5>
-                <!-- เลือกโซนและ Input เวลา (ยกมาจากโค้ดเดิม) -->
-                <div class="btn-group w-100 mb-4 rounded-4 overflow-hidden">
-                    <input type="radio" class="btn-check" name="timer_zone" id="z1" value="V40" checked>
-                    <label class="btn btn-outline-primary py-3" for="z1">โซน1</label>
-                    <label class="btn btn-outline-primary py-3" for="z1">โซน2</label>
-                    <label class="btn btn-outline-primary py-3" for="z1">โซน3</label>
-                    <label class="btn btn-outline-primary py-3" for="z1">โซน4</label>
-                    <!-- เพิ่มปุ่มโซนอื่นๆ -->
-                </div>
-                <button class="btn btn-primary btn-lg w-100 fw-bold shadow" onclick="saveTimer()">
-                    <i class="bi bi-cloud-arrow-up-fill me-2"></i> บันทึกข้อมูล
-                </button>
+    <!-- ส่วนแก้ไขการตั้งเวลา (ซ่อมแซม Input ที่หายไป) -->
+    <div class="card p-4 border-start border-primary border-4">
+        <h5 class="fw-bold mb-4 text-primary">แก้ไขการตั้งเวลา (Set Timer)</h5>
+        
+        <div class="btn-group w-100 mb-4 rounded-4 overflow-hidden shadow-sm">
+            <input type="radio" class="btn-check" name="timer_zone" id="z1" value="V40" checked>
+            <label class="btn btn-outline-primary border-0 py-3" for="z1">โซน 1</label>
+            <input type="radio" class="btn-check" name="timer_zone" id="z2" value="V41">
+            <label class="btn btn-outline-primary border-0 py-3" for="z2">โซน 2</label>
+            <input type="radio" class="btn-check" name="timer_zone" id="z3" value="V42">
+            <label class="btn btn-outline-primary border-0 py-3" for="z3">โซน 3</label>
+            <input type="radio" class="btn-check" name="timer_zone" id="z4" value="V43">
+            <label class="btn btn-outline-primary border-0 py-3" for="z4">โซน 4</label>
+        </div>
+
+        <!-- ช่องกรอกเวลา รอบที่ 1 -->
+        <h6 class="fw-bold text-muted small mb-3">รอบที่ 1 (Morning Session)</h6>
+        <div class="row g-3 mb-4">
+            <div class="col-6">
+                <label class="small fw-bold mb-2 d-block">เริ่มรดน้ำ</label>
+                <input type="time" id="start_t1" class="form-control form-control-lg border-2 rounded-4">
+            </div>
+            <div class="col-6">
+                <label class="small fw-bold mb-2 d-block">หยุดรดน้ำ</label>
+                <input type="time" id="stop_t1" class="form-control form-control-lg border-2 rounded-4">
             </div>
         </div>
+
+        <!-- ช่องกรอกเวลา รอบที่ 2 -->
+        <h6 class="fw-bold text-muted small mb-3">รอบที่ 2 (Evening Session)</h6>
+        <div class="row g-3 mb-4">
+            <div class="col-6">
+                <label class="small fw-bold mb-2 d-block">เริ่มรดน้ำ</label>
+                <input type="time" id="start_t2" class="form-control form-control-lg border-2 rounded-4">
+            </div>
+            <div class="col-6">
+                <label class="small fw-bold mb-2 d-block">หยุดรดน้ำ</label>
+                <input type="time" id="stop_t2" class="form-control form-control-lg border-2 rounded-4">
+            </div>
+        </div>
+
+        <button class="btn btn-primary btn-lg w-100 fw-bold shadow-sm py-3" onclick="saveTimer()">
+            <i class="bi bi-cloud-arrow-up-fill me-2"></i> บันทึกข้อมูลลงบอร์ด
+        </button>
+    </div>
+</div>
 
     </div>
 </div>
