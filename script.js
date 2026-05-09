@@ -29,11 +29,17 @@ function parseBlynkTime(data) {
 }
 
 // =====================
-// 📊 CHART FUNCTIONS (เพิ่มใหม่)
+// 📊 CHART FUNCTIONS (FIXED VERSION)
 // =====================
 function initChart() {
     const ctx = document.getElementById('farmChart');
     if (!ctx) return;
+
+    // 🔥 แก้ไข Error: ตรวจสอบและทำลายกราฟเดิมก่อนสร้างใหม่
+    const existingChart = Chart.getChart("farmChart"); 
+    if (existingChart) {
+        existingChart.destroy();
+    }
 
     farmChart = new Chart(ctx, {
         type: 'line',
@@ -60,13 +66,12 @@ function initChart() {
             maintainAspectRatio: false,
             plugins: { legend: { position: 'top' } },
             scales: {
-                y: { beginAtZero: false, grid: { color: '#eee' } },
+                y: { beginAtZero: false },
                 x: { grid: { display: false } }
             }
         }
     });
 }
-
 function updateChart(temp, humi) {
     if (!farmChart) return;
     const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
