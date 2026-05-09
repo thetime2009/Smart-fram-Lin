@@ -186,6 +186,8 @@ function updateUI(pin, data) {
             }
         }
     }
+    // เพิ่มบรรทัดนี้ไว้ท้ายสุดของฟังก์ชัน updateUI
+    updateStatusText();
 }
 
 // =====================
@@ -302,6 +304,36 @@ async function syncBlynkConfig() {
 window.addEventListener('DOMContentLoaded', () => {
     syncBlynkConfig();
 });
+
+// =====================
+// 📝 STATUS TEXT GENERATOR
+// =====================
+
+function updateStatusText() {
+    const statusElement = document.getElementById('working-status');
+    if (!statusElement) return;
+
+    // 1. ตรวจสอบโหมดปัจจุบัน
+    const isAuto = document.getElementById('v10_switch')?.checked;
+    // สมมติ V27 เก็บค่าโหมด: 1=ตั้งเวลา, 2=VPD, 3=Manual
+    const modeText = isAuto ? "ระบบอัตโนมัติ (Smart Logic)" : "โหมดควบคุมเอง (Manual)"; 
+    
+    // 2. ตรวจสอบว่าโซนไหนเปิดอยู่บ้าง
+    let activeZones = [];
+    if (document.getElementById('v11_switch')?.checked) activeZones.push("โซนที่ 1");
+    if (document.getElementById('v12_switch')?.checked) activeZones.push("โซนที่ 2");
+    if (document.getElementById('v13_switch')?.checked) activeZones.push("โซนที่ 3");
+    if (document.getElementById('v14_switch')?.checked) activeZones.push("โซนที่ 4");
+
+    // 3. สร้างข้อความแสดงผล
+    if (activeZones.length > 0) {
+        statusElement.innerText = `${activeZones.join(', ')} กำลังรดน้ำ | โหมด: ${modeText}`;
+        statusElement.style.color = "#2ed573"; // สีเขียวเมื่อทำงาน
+    } else {
+        statusElement.innerText = `ระบบพร้อมทำงาน | โหมด: ${modeText}`;
+        statusElement.style.color = "#747d8c"; // สีเทาเมื่อหยุดพัก
+    }
+}
 
 // =====================
 // 🚀 START
