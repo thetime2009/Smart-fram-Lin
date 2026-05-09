@@ -229,28 +229,40 @@ function saveTimer() {
 // =====================
 // 🚀 INITIAL FETCH FOR CONFIG
 // =====================
+// =====================
+// 🔧 1. ประกาศฟังก์ชันจัดการ UI (ต้องอยู่ก่อนการเรียกใช้)
+// =====================
+function updateConfigUI(pin, val) {
+    const configPins = ['V26', 'V30', 'V31', 'V55'];
+    if (configPins.includes(pin)) {
+        const pinKey = pin.toLowerCase();
+        
+        // อัปเดตตัวเลข
+        const label = document.getElementById(`${pinKey}-val`);
+        if (label) label.innerText = val;
 
-/**
- * ฟังก์ชันสำหรับดึงค่าเริ่มต้นจาก Blynk มาแสดงผล
- * ควรเรียกใช้เมื่อโหลดหน้าเว็บ หรือเมื่อสลับมาที่แท็บ Config
- */
+        // อัปเดต Slider
+        const slider = document.getElementById(`input-${pinKey}`);
+        if (slider) slider.value = val;
+        
+        console.log(`[Config Sync] ${pin} updated to: ${val}`);
+    }
+}
+
+// =====================
+// 🚀 2. ฟังก์ชันโหลดข้อมูล (ที่เรียกใช้ updateConfigUI)
+// =====================
 async function syncBlynkConfig() {
     const configPins = ['V26', 'V30', 'V31', 'V55'];
-    
-    console.log("กำลังโหลดค่า Config จาก Blynk...");
-
     for (let pin of configPins) {
         try {
-            // ดึงค่าราย Pin ผ่าน Blynk HTTP API
-            // หมายเหตุ: ตรวจสอบให้มั่นใจว่า BLYNK_URL และ BLYNK_TOKEN ถูกประกาศไว้แล้ว
             const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
-            
             if (response.ok) {
                 const data = await response.json();
-                const val = data[0]; // Blynk API มักคืนค่าเป็น Array เช่น ["70"]
-
-                // ส่งค่าไปอัปเดตที่ฟังก์ชันจัดการ Config ที่เราแยกไว้
-                updateConfigUI(pin, val);
+                const val = data[0]; 
+                
+                // เรียกใช้ฟังก์ชันที่ประกาศไว้ด้านบน
+                updateConfigUI(pin, val); 
             }
         } catch (error) {
             console.error(`ไม่สามารถโหลดค่า ${pin} ได้:`, error);
@@ -258,10 +270,13 @@ async function syncBlynkConfig() {
     }
 }
 
-// เรียกทำงานทันทีเมื่อโหลดสคริปต์เสร็จ หรือเมื่อหน้า DOM พร้อม
-window.addEventListener('DOMContentLoaded', (event) => {
+// =====================
+// 🎯 3. จุดเริ่มต้นการทำงาน (Event Listeners)
+// =====================
+window.addEventListener('DOMContentLoaded', () => {
     syncBlynkConfig();
 });
+
 // =====================
 // 🚀 START
 // =====================
