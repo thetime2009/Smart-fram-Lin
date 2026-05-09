@@ -386,13 +386,15 @@
         <label class="form-label">CALIBAT การไหลของน้ำ (V26): <span id="v26-val">0</span></label>
         <input type="range" class="form-range" id="input-v26" min="0" max="100" onchange="sendToBlynk('V26', this.value)">
     </div>
-
-    <!-- Switch: V35 ระบบตรวจน้ำในท่อ -->
-    <div class="form-check form-switch mb-4">
-        <input class="form-check-input" type="checkbox" id="input-v35" onchange="sendToBlynk('V35', this.checked ? 1 : 0)">
-        <label class="form-check-label">ระบบตรวจน้ำในท่อ (V35)</label>
+         <div class="mb-4">
+        <label class="form-label">CALIBAT ค่ากินเปียก(ยิ่งน้อยยิ่งเปียก) (V30): <span id="v26-val">0</span></label>
+        <input type="range" class="form-range" id="input-v26" min="0" max="100" onchange="sendToBlynk('V30', this.value)">
     </div>
-
+         <div class="mb-4">
+        <label class="form-label">CALIBAT ค่าดินแห้ง(ยิ่งมากยิ่งแห้ง) (V31): <span id="v26-val">0</span></label>
+        <input type="range" class="form-range" id="input-v26" min="0" max="100" onchange="sendToBlynk('V31', this.value)">
+    </div>
+         
     <!-- Button: V15 รีเซ็ตปั๊มน้ำ -->
     <button class="btn btn-primary w-100 mb-2" onclick="sendToBlynk('V15', 1)">รีเซ็ตปั๊มน้ำ (V15)</button>
 </div>
