@@ -4,6 +4,7 @@
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 let farmChart; // ตัวแปรสำหรับคุมกราฟ
+let tempGauge, humiGauge; // --- 1. ตัวแปรสำหรับเก็บออบเจกต์เกจวัด ---
 
 // =====================
 // ⏰ TIME FUNCTIONS
@@ -114,22 +115,39 @@ async function fetchData() {
 }
 
 // =====================
-// 🎯 MAIN UI UPDATE
+// 🎯 MAIN UI UPDATE (รวม Gauge เรียบร้อย)
 // =====================
 function updateUI(pin, data) {
     if (!data) return;
 
     let parts = parseBlynkTime(data);
     let val = parts[0];
+    let numVal = parseFloat(val); // แปลงค่าเป็นตัวเลขสำหรับ Gauge และ Chart
 
-    // 🌡️ SENSOR & CHART
+    // 🌡️ SENSOR & CHART & GAUGE
     if (pin === 'V1') {
+        // 1. อัปเดตตัวเลขบนหน้าจอ
         document.getElementById('temp').innerText = val + "°C";
-        // อัปเดตกราฟเมื่อได้ค่าอุณหภูมิ (สมมติว่าดึง V0 มาพร้อมๆ กัน)
+        
+        // 2. ขยับเข็มเกจวัด (ถ้ามีการสร้าง tempGauge ไว้แล้ว)
+        if (typeof tempGauge !== 'undefined') {
+            tempGauge.value = numVal;
+        }
+
+        // 3. อัปเดตกราฟเส้น (Logic เดิม)
         const humiVal = document.getElementById('humi').innerText.replace('%', '');
         updateChart(val, humiVal);
     }
-    if (pin === 'V0') document.getElementById('humi').innerText = val + "%";
+
+    if (pin === 'V0') {
+        // 1. อัปเดตตัวเลขบนหน้าจอ
+        document.getElementById('humi').innerText = val + "%";
+
+        // 2. ขยับเข็มเกจวัด (ถ้ามีการสร้าง humiGauge ไว้แล้ว)
+        if (typeof humiGauge !== 'undefined') {
+            humiGauge.value = numVal;
+        }
+    }
     if (pin === 'V65') document.getElementById('rain').innerText = val;
     if (pin === 'V88') document.getElementById('soil').innerText = val + "%";
     
