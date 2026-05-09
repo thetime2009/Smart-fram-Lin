@@ -225,35 +225,43 @@ function saveTimer() {
     setTimeout(() => fetchData(), 1500);
 }
 
-// ฟังก์ชันสำหรับดึงค่าปัจจุบันจาก Blynk มาแสดงผลในหน้า Config
+
+// =====================
+// 🚀 INITIAL FETCH FOR CONFIG
+// =====================
+
 /**
- * ฟังก์ชันสำหรับจัดการอัปเดตหน้าจอ Config โดยเฉพาะ
- * @param {string} pin - ชื่อ Virtual Pin จาก Blynk (เช่น 'V26')
- * @param {string|number} val - ค่าที่ต้องการอัปเดต
+ * ฟังก์ชันสำหรับดึงค่าเริ่มต้นจาก Blynk มาแสดงผล
+ * ควรเรียกใช้เมื่อโหลดหน้าเว็บ หรือเมื่อสลับมาที่แท็บ Config
  */
-function updateConfigUI(pin, val) {
-    // 1. กำหนดรายการ Pin ที่เกี่ยวข้องกับหน้า Config
+async function syncBlynkConfig() {
     const configPins = ['V26', 'V30', 'V31', 'V55'];
     
-    // 2. ตรวจสอบว่า Pin ที่ส่งมาอยู่ในกลุ่ม Config หรือไม่
-    if (configPins.includes(pin)) {
-        const pinKey = pin.toLowerCase(); // แปลงเป็นตัวพิมพ์เล็กเพื่อให้ตรงกับ ID ใน HTML
+    console.log("กำลังโหลดค่า Config จาก Blynk...");
 
-        // 3. อัปเดตตัวเลขแสดงผลต่อท้าย (Target: <span id="v26-val">)
-        const label = document.getElementById(`${pinKey}-val`);
-        if (label) {
-            label.innerText = val;
-        }
+    for (let pin of configPins) {
+        try {
+            // ดึงค่าราย Pin ผ่าน Blynk HTTP API
+            // หมายเหตุ: ตรวจสอบให้มั่นใจว่า BLYNK_URL และ BLYNK_TOKEN ถูกประกาศไว้แล้ว
+            const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                const val = data[0]; // Blynk API มักคืนค่าเป็น Array เช่น ["70"]
 
-        // 4. อัปเดตตำแหน่งของ Slider (Target: <input id="input-v26">)
-        const slider = document.getElementById(`input-${pinKey}`);
-        if (slider) {
-            slider.value = val;
+                // ส่งค่าไปอัปเดตที่ฟังก์ชันจัดการ Config ที่เราแยกไว้
+                updateConfigUI(pin, val);
+            }
+        } catch (error) {
+            console.error(`ไม่สามารถโหลดค่า ${pin} ได้:`, error);
         }
-        
-        console.log(`[Config Sync] ${pin} updated to: ${val}`);
     }
 }
+
+// เรียกทำงานทันทีเมื่อโหลดสคริปต์เสร็จ หรือเมื่อหน้า DOM พร้อม
+window.addEventListener('DOMContentLoaded', (event) => {
+    syncBlynkConfig();
+});
 // =====================
 // 🚀 START
 // =====================
