@@ -36,23 +36,26 @@ function parseBlynkTime(data) {
 // =====================
 // 📡 GET DATA
 // =====================
-function getBlynkData(pin) {
-    const url = `${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}?t=${Date.now()}`;
+async function getBlynkData(pin) {
+    try {
+        const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}?t=${Date.now()}`);
 
-    fetch(url, { mode: "no-cors" })
-    .then(res => res.text())
-    .then(rawData => {
-        let data;
+        if (response.ok) {
+            let rawData = await response.text();
+            let data;
 
-        try {
-            data = JSON.parse(rawData);
-        } catch {
-            data = rawData;
+            try {
+                data = JSON.parse(rawData);
+            } catch {
+                data = rawData;
+            }
+
+            updateUI(pin, data);
         }
 
-        updateUI(pin, data);
-    })
-    .catch(err => console.log("ERR:", pin));
+    } catch (error) {
+        console.error(`โหลด ${pin} ไม่ได้:`, error);
+    }
 }
 
 // =====================
