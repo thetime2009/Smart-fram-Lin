@@ -69,6 +69,31 @@
             margin-bottom: 15px;
         }
 
+
+        /* จัดกลุ่มปุ่มให้เรียงกันและสวยงาม */
+.config-button-group {
+    display: flex;          /* สั่งให้เรียงแนวนอน */
+    flex-wrap: wrap;       /* ถ้าจอแคบให้ขึ้นบรรทัดใหม่ได้ */
+    gap: 15px;             /* ระยะห่างระหว่างปุ่ม */
+    margin-top: 25px;      /* ระยะห่างจาก Slider ด้านบน */
+    justify-content: center; /* จัดปุ่มให้อยู่กึ่งกลางหน้าจอ */
+}
+
+.config-button-group .btn {
+    flex: 1;               /* ให้ทุกปุ่มมีความกว้างเท่ากัน */
+    min-width: 150px;      /* ความกว้างขั้นต่ำของแต่ละปุ่ม */
+    padding: 15px;         /* เพิ่มขนาดปุ่มให้กดง่าย */
+    border-radius: 10px;   /* ทำมุมโค้ง */
+    font-weight: bold;     /* ตัวอักษรหนา */
+    border: none;          /* เอาเส้นขอบออก */
+    transition: 0.3s;      /* เอฟเฟกต์ตอนกด */
+}
+
+/* เอฟเฟกต์ตอนเอาเมาส์ไปชี้ */
+.config-button-group .btn:hover {
+    transform: translateY(-3px); /* ยกปุ่มขึ้นเล็กน้อย */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
         .bg-temp { background: rgba(255, 71, 87, 0.1); color: #ff4757; }
         .bg-humid { background: rgba(46, 213, 115, 0.1); color: #2ed573; }
         .bg-rain { background: rgba(30, 144, 255, 0.1); color: #1e90ff; }
@@ -76,6 +101,8 @@
 
         .form-check-input:checked { background-color: var(--accent-color); border-color: var(--accent-color); }
         .form-check-input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        
     </style>
 </head>
 <body>
