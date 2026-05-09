@@ -326,7 +326,7 @@ function updateStatusText() {
 
     // 1. ตรวจสอบระบบ (Auto/Manual) จาก Switch V10
     const isAuto = document.getElementById('v10_switch')?.checked;
-    const systemText = isAuto ? "ระบบอัตโนมัติ (Smart Logic)" : "โหมดควบคุมเอง (Manual)"; 
+    const systemText = isAuto ? "อัตโนมัติ (Smart Logic)" : "โหมดควบคุมเอง (Manual)"; 
     
     // 2. ดึงข้อความโหมดจาก Select ที่มี id="menu_select"
     const menuSelect = document.getElementById('menu_select');
