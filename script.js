@@ -1,4 +1,4 @@
-const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
+const BLYNK_TOKEN = "2r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 
 // =====================
