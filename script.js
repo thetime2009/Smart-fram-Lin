@@ -4,7 +4,6 @@
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 let farmChart; // ตัวแปรสำหรับคุมกราฟ
-let tempGauge, humiGauge; // --- 1. ตัวแปรสำหรับเก็บออบเจกต์เกจวัด ---
 
 // =====================
 // ⏰ TIME FUNCTIONS
@@ -115,39 +114,22 @@ async function fetchData() {
 }
 
 // =====================
-// 🎯 MAIN UI UPDATE (รวม Gauge เรียบร้อย)
+// 🎯 MAIN UI UPDATE
 // =====================
 function updateUI(pin, data) {
     if (!data) return;
 
     let parts = parseBlynkTime(data);
     let val = parts[0];
-    let numVal = parseFloat(val); // แปลงค่าเป็นตัวเลขสำหรับ Gauge และ Chart
 
-    // 🌡️ SENSOR & CHART & GAUGE
+    // 🌡️ SENSOR & CHART
     if (pin === 'V1') {
-        // 1. อัปเดตตัวเลขบนหน้าจอ
         document.getElementById('temp').innerText = val + "°C";
-        
-        // 2. ขยับเข็มเกจวัด (ถ้ามีการสร้าง tempGauge ไว้แล้ว)
-        if (typeof tempGauge !== 'undefined') {
-            tempGauge.value = numVal;
-        }
-
-        // 3. อัปเดตกราฟเส้น (Logic เดิม)
+        // อัปเดตกราฟเมื่อได้ค่าอุณหภูมิ (สมมติว่าดึง V0 มาพร้อมๆ กัน)
         const humiVal = document.getElementById('humi').innerText.replace('%', '');
         updateChart(val, humiVal);
     }
-
-    if (pin === 'V0') {
-        // 1. อัปเดตตัวเลขบนหน้าจอ
-        document.getElementById('humi').innerText = val + "%";
-
-        // 2. ขยับเข็มเกจวัด (ถ้ามีการสร้าง humiGauge ไว้แล้ว)
-        if (typeof humiGauge !== 'undefined') {
-            humiGauge.value = numVal;
-        }
-    }
+    if (pin === 'V0') document.getElementById('humi').innerText = val + "%";
     if (pin === 'V65') document.getElementById('rain').innerText = val;
     if (pin === 'V88') document.getElementById('soil').innerText = val + "%";
     
@@ -241,45 +223,6 @@ function saveTimer() {
 
     alert(`บันทึกสำเร็จสำหรับ ${selectedZone.id}`);
     setTimeout(() => fetchData(), 1500);
-}
-
-// --- ส่วนการตั้งค่า Gauge ใน initGauges() ---
-function initGauges() {
-    const commonConfig = {
-        width: 120,
-        height: 120,
-        minValue: 0,
-        startAngle: 90,
-        ticksAngle: 180,
-        valueBox: false,
-        borderShadowWidth: 0,
-        borders: false,
-        colorPlate: "transparent", // โปร่งใสให้กลมกลืนกับ Card
-        needleType: "arrow",
-        needleWidth: 3,
-        animationDuration: 1000,
-        animationRule: "easeOutExpo"
-    };
-
-    // เกจวัดอุณหภูมิ (โทนส้ม-แดง)
-    tempGauge = new RadialGauge({
-        ...commonConfig,
-        renderTo: 'gauge-temp',
-        maxValue: 60,
-        majorTicks: ["0","20","40","60"],
-        highlights: [{ "from": 35, "to": 60, "color": "rgba(255, 69, 58, .3)" }],
-        colorNeedle: "#ff4757"
-    }).draw();
-
-    // เกจวัดความชื้น (โทนฟ้า-เขียว)
-    humiGauge = new RadialGauge({
-        ...commonConfig,
-        renderTo: 'gauge-humi',
-        maxValue: 100,
-        majorTicks: ["0","25","50","75","100"],
-        highlights: [{ "from": 70, "to": 100, "color": "rgba(46, 213, 115, .3)" }],
-        colorNeedle: "#2ed573"
-    }).draw();
 }
 
 // =====================
