@@ -224,7 +224,33 @@ function saveTimer() {
     alert(`บันทึกสำเร็จสำหรับ ${selectedZone.id}`);
     setTimeout(() => fetchData(), 1500);
 }
+// =====================
+// 🛰️ SEND DATA TO BLYNK (NEW)
+// =====================
 
+/**
+ * ฟังก์ชันส่งค่าจากหน้าเว็บไปยัง Blynk Server
+ * ใช้สำหรับ Slider ในหน้า Config (V26, V30, V31, V55)
+ */
+async function sendToBlynk(pin, value) {
+    // 1. สร้าง URL สำหรับ Update ค่า
+    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
+
+    try {
+        // 2. ส่งข้อมูลไปที่ Blynk
+        const response = await fetch(url);
+        
+        if (response.ok) {
+            console.log(`[Blynk Update] Success: ${pin} = ${value}`);
+            
+            // 3. อัปเดต UI หน้าเว็บทันที (ตัวเลขข้าง Slider)
+            // เราใช้ฟังก์ชัน updateConfigUI ที่คุณมีอยู่แล้วมาช่วย
+            updateConfigUI(pin, value);
+        }
+    } catch (error) {
+        console.error(`[Blynk Update] Error:`, error);
+    }
+}
 
 // =====================
 // 🚀 INITIAL FETCH FOR CONFIG
