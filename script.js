@@ -3,11 +3,7 @@
 // =====================
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
-let farmChart; 
-
-// ตัวแปรเก็บสถานะสำหรับปุ่มแบบ Switch (V35, V36)
-let statusV35 = 0;
-let statusV36 = 0;
+let farmChart; // ตัวแปรสำหรับคุมกราฟ
 
 // =====================
 // ⏰ TIME FUNCTIONS
@@ -33,13 +29,17 @@ function parseBlynkTime(data) {
 }
 
 // =====================
-// 📊 CHART FUNCTIONS
+// 📊 CHART FUNCTIONS (FIXED VERSION)
 // =====================
 function initChart() {
     const ctx = document.getElementById('farmChart');
     if (!ctx) return;
+
+    // 🔥 แก้ไข Error: ตรวจสอบและทำลายกราฟเดิมก่อนสร้างใหม่
     const existingChart = Chart.getChart("farmChart"); 
-    if (existingChart) existingChart.destroy();
+    if (existingChart) {
+        existingChart.destroy();
+    }
 
     farmChart = new Chart(ctx, {
         type: 'line',
@@ -64,17 +64,22 @@ function initChart() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            scales: { y: { beginAtZero: false }, x: { grid: { display: false } } }
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                y: { beginAtZero: false },
+                x: { grid: { display: false } }
+            }
         }
     });
 }
-
 function updateChart(temp, humi) {
     if (!farmChart) return;
     const now = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+    
     farmChart.data.labels.push(now);
     farmChart.data.datasets[0].data.push(parseFloat(temp));
     farmChart.data.datasets[1].data.push(parseFloat(humi));
+
     if (farmChart.data.labels.length > 12) {
         farmChart.data.labels.shift();
         farmChart.data.datasets[0].data.shift();
@@ -101,7 +106,8 @@ async function getBlynkData(pin) {
 }
 
 async function fetchData() {
-    const pins = ['V10','V1','V0','V65','V18','V105','V106','V11','V12','V13','V14','V27','V40','V41','V42','V43','V50','V51','V52','V53','V88','V26','V30','V31','V55','V35','V36','V15','V16','V20'];
+    // เพิ่ม Pin V44-V47 สำหรับรอบที่ 2
+    const pins = ['V10','V1','V0','V65','V18','V105','V106','V11','V12','V13','V14','V27','V40','V41','V42','V43','V50','V51','V52','V53','V88','V26','V30','V31','V55'];
     for (const pin of pins) {
         await getBlynkData(pin);
     }
@@ -112,12 +118,14 @@ async function fetchData() {
 // =====================
 function updateUI(pin, data) {
     if (!data) return;
+
     let parts = parseBlynkTime(data);
     let val = parts[0];
 
     // 🌡️ SENSOR & CHART
     if (pin === 'V1') {
         document.getElementById('temp').innerText = val + "°C";
+        // อัปเดตกราฟเมื่อได้ค่าอุณหภูมิ (สมมติว่าดึง V0 มาพร้อมๆ กัน)
         const humiVal = document.getElementById('humi').innerText.replace('%', '');
         updateChart(val, humiVal);
     }
@@ -137,15 +145,17 @@ function updateUI(pin, data) {
     if (pin === 'V106') {
         document.getElementById('status_val').innerText = (val === "1" ? "คายน้ำสูง" : val === "2" ? "คายน้ำดีมาก" : val);
     }
-
+    // เพิ่มส่วนนี้เข้าไปในฟังก์ชัน updateUI(pin, data) เดิมของคุณ
     // 🔧 ส่วนจัดการโหมดการทำงาน (V27)
     if (pin === 'V27') {
-        const menuSelect = document.getElementById('menu_select');
-        if (menuSelect) {
-            menuSelect.value = String(val); 
-            updateStatusText();
-        }
+    const menuSelect = document.getElementById('menu_select');
+    if (menuSelect) {
+        // อัปเดตตัว Select ให้เลือกตามค่าที่มาจาก Blynk (1 หรือ 2)
+        menuSelect.value = String(val); 
+        // สั่งให้สถานะด้านล่างอัปเดตข้อความตาม
+        updateStatusText();
     }
+}
 
     // 🔧 AUTO MODE & SWITCHES
     if (pin === 'V10') {
@@ -157,91 +167,184 @@ function updateUI(pin, data) {
         });
     }
 
-    // อัปเดตสถานะปุ่ม Switch (V35, V36) จาก Blynk
-    if (pin === 'V35') {
-        statusV35 = parseInt(val);
-        updateButtonStyle('btn-v35', statusV35);
-    }
-    if (pin === 'V36') {
-        statusV36 = parseInt(val);
-        updateButtonStyle('btn-update', statusV36);
-    }
-
     const valveSwitch = document.getElementById(`${pin.toLowerCase()}_switch`);
     if (valveSwitch) valveSwitch.checked = (val === "1" || val === "255");
 
-    // ⏰ TIMER TABLE
+    // ⏰ TIMER TABLE & INPUT (รอบ 1: V40-V43, รอบ 2: V50-V53)
     if (['V40','V41','V42','V43','V50','V51','V52','V53'].includes(pin)) {
         let startSec = parseInt(parts[0]);
         let stopSec  = parseInt(parts[1]);
-        const tableCell = document.getElementById(`${pin.toLowerCase()}_start`);
+        let timeRange = secondsToTime(startSec) + " - " + secondsToTime(stopSec);
+        
+        // อัปเดตในตาราง
+        const tableCell = document.getElementById(`${pin.toLowerCase()}_start`); // ใน HTML รอบ 2 ควรมี id เช่น v50_start
         if (tableCell) tableCell.innerText = secondsToTime(startSec);
         const stopCell = document.getElementById(`${pin.toLowerCase()}_stop`);
         if (stopCell) stopCell.innerText = secondsToTime(stopSec);
+
+        // อัปเดตช่อง Input หากเลือกโซนนั้นอยู่
+        const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+        if (selectedZone) {
+            const currentPin = selectedZone.value; // รอบ 1
+            const secondPin = "V" + (parseInt(currentPin.substring(1)) + 4); // คำนวณ Pin รอบ 2 (V40 -> V44)
+
+            if (pin === currentPin) {
+                document.getElementById('start_t1').value = secondsToTime(startSec);
+                document.getElementById('stop_t1').value = secondsToTime(stopSec);
+            } else if (pin === secondPin) {
+                document.getElementById('start_t2').value = secondsToTime(startSec);
+                document.getElementById('stop_t2').value = secondsToTime(stopSec);
+            }
+        }
     }
+    // เพิ่มบรรทัดนี้ไว้ท้ายสุดของฟังก์ชัน updateUI
     updateStatusText();
 }
 
 // =====================
-// 📤 SEND & CONTROL FUNCTIONS
+// 📤 SEND & SAVE
 // =====================
+function updateBlynk(pin, value) {
+    new Image().src = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
+    setTimeout(() => getBlynkData(pin), 1000);
+}
+
+function toggleBlynk(pin, isChecked) {
+    updateBlynk(pin, isChecked ? 1 : 0);
+}
+
+function saveTimer() {
+    const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
+    if (!selectedZone) return alert("เลือกโซนก่อน");
+
+    const pinR1 = selectedZone.value; // รอบ 1 (V40-V43)
+    const pinR2 = "V" + (parseInt(pinR1.substring(1)) + 4); // รอบ 2 (V44-V47)
+
+    const s1 = timeToSeconds(document.getElementById('start_t1').value);
+    const e1 = timeToSeconds(document.getElementById('stop_t1').value);
+    const s2 = timeToSeconds(document.getElementById('start_t2').value);
+    const e2 = timeToSeconds(document.getElementById('stop_t2').value);
+
+    if (isNaN(s1) || isNaN(e1) || isNaN(s2) || isNaN(e2)) return alert("กรอกเวลาให้ครบทั้ง 2 รอบ");
+
+    // ส่งค่าไป Blynk
+    const url1 = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pinR1}?value=${s1}&value=${e1}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
+    const url2 = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pinR2}?value=${s2}&value=${e2}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
+
+    new Image().src = url1;
+    setTimeout(() => { new Image().src = url2; }, 500);
+
+    alert(`บันทึกสำเร็จสำหรับ ${selectedZone.id}`);
+    setTimeout(() => fetchData(), 1500);
+}
+// =====================
+// 🛰️ SEND DATA TO BLYNK (NEW)
+// =====================
+
+/**
+ * ฟังก์ชันส่งค่าจากหน้าเว็บไปยัง Blynk Server
+ * ใช้สำหรับ Slider ในหน้า Config (V26, V30, V31, V55)
+ */
 async function sendToBlynk(pin, value) {
+    // 1. สร้าง URL สำหรับ Update ค่า
     const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
+
     try {
-        await fetch(url);
-        console.log(`[Blynk] Pin ${pin} updated to ${value}`);
-    } catch (e) { console.error("Update error", e); }
-}
-
-// 🔘 1. ฟังก์ชันสำหรับปุ่มแบบ PUSH (V15, V16, V20)
-function handlePushButton(pin) {
-    sendToBlynk(pin, 1);
-    setTimeout(() => sendToBlynk(pin, 0), 500);
-}
-
-// 🔘 2. ฟังก์ชันสำหรับปุ่มแบบ SWITCH (V35, V36)
-function handleSwitchButton(pin) {
-    if (pin === 'V35') {
-        statusV35 = statusV35 === 0 ? 1 : 0;
-        sendToBlynk('V35', statusV35);
-        updateButtonStyle('btn-v35', statusV35);
-    } else if (pin === 'V36') {
-        statusV36 = statusV36 === 0 ? 1 : 0;
-        sendToBlynk('V36', statusV36);
-        updateButtonStyle('btn-update', statusV36);
+        // 2. ส่งข้อมูลไปที่ Blynk
+        const response = await fetch(url);
+        
+        if (response.ok) {
+            console.log(`[Blynk Update] Success: ${pin} = ${value}`);
+            
+            // 3. อัปเดต UI หน้าเว็บทันที (ตัวเลขข้าง Slider)
+            // เราใช้ฟังก์ชัน updateConfigUI ที่คุณมีอยู่แล้วมาช่วย
+            updateConfigUI(pin, value);
+        }
+    } catch (error) {
+        console.error(`[Blynk Update] Error:`, error);
     }
 }
 
-// เปลี่ยนสีปุ่มบน UI (Switch Mode)
-function updateButtonStyle(elementId, status) {
-    const btn = document.getElementById(elementId);
-    if (btn) {
-        if (status === 1) {
-            btn.style.backgroundColor = "#2ed573"; // เขียว
-            btn.style.color = "white";
-        } else {
-            btn.style.backgroundColor = "#747d8c"; // เทา
-            btn.style.color = "white";
+// =====================
+// 🚀 INITIAL FETCH FOR CONFIG
+// =====================
+// =====================
+// 🔧 1. ประกาศฟังก์ชันจัดการ UI (ต้องอยู่ก่อนการเรียกใช้)
+// =====================
+function updateConfigUI(pin, val) {
+    const configPins = ['V26', 'V30', 'V31', 'V55'];
+    if (configPins.includes(pin)) {
+        const pinKey = pin.toLowerCase();
+        
+        // อัปเดตตัวเลข
+        const label = document.getElementById(`${pinKey}-val`);
+        if (label) label.innerText = val;
+
+        // อัปเดต Slider
+        const slider = document.getElementById(`input-${pinKey}`);
+        if (slider) slider.value = val;
+        
+        console.log(`[Config Sync] ${pin} updated to: ${val}`);
+    }
+}
+
+// =====================
+// 🚀 2. ฟังก์ชันโหลดข้อมูล (ที่เรียกใช้ updateConfigUI)
+// =====================
+async function syncBlynkConfig() {
+    const configPins = ['V26', 'V30', 'V31', 'V55'];
+    for (let pin of configPins) {
+        try {
+            const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
+            if (response.ok) {
+                const data = await response.json();
+                const val = data[0]; 
+                
+                // เรียกใช้ฟังก์ชันที่ประกาศไว้ด้านบน
+                updateConfigUI(pin, val); 
+            }
+        } catch (error) {
+            console.error(`ไม่สามารถโหลดค่า ${pin} ได้:`, error);
         }
     }
 }
 
 // =====================
-// 📝 OTHER FUNCTIONS (TIMER & STATUS)
+// 🎯 3. จุดเริ่มต้นการทำงาน (Event Listeners)
 // =====================
+window.addEventListener('DOMContentLoaded', () => {
+    syncBlynkConfig();
+});
+
+// =====================
+// 📝 STATUS TEXT GENERATOR
+// =====================
+
 function updateStatusText() {
     const statusElement = document.getElementById('working-status');
     if (!statusElement) return;
+
+    // 1. ตรวจสอบระบบ (Auto/Manual) จาก Switch V10
     const isAuto = document.getElementById('v10_switch')?.checked;
-    const systemText = isAuto ? "อัตโนมัติ (Smart Logic)" : "โหมดควบคุมเอง (Manual)"; 
+    const systemText = isAuto ? "ระบบอัตโนมัติ (Smart Logic)" : "โหมดควบคุมเอง (Manual)"; 
+    
+    // 2. ดึงข้อความโหมดจาก Select ที่มี id="menu_select"
     const menuSelect = document.getElementById('menu_select');
-    let modeName = menuSelect && menuSelect.options[menuSelect.selectedIndex] ? menuSelect.options[menuSelect.selectedIndex].text : "กำลังโหลด...";
+    let modeName = "กำลังโหลด...";
+    
+    if (menuSelect && menuSelect.options[menuSelect.selectedIndex]) {
+        // ดึงข้อความภาษาไทยข้างใน <option> เช่น "⏰ โหมดตั้งเวลา..."
+        modeName = menuSelect.options[menuSelect.selectedIndex].text;
+    }
 
+    // 3. ตรวจสอบโซนที่กำลังทำงาน
     let activeZones = [];
-    ['v11_switch','v12_switch','v13_switch','v14_switch'].forEach((id, idx) => {
-        if (document.getElementById(id)?.checked) activeZones.push(`โซนที่ ${idx+1}`);
-    });
+    if (document.getElementById('v11_switch')?.checked) activeZones.push("โซนที่ 1");
+    if (document.getElementById('v12_switch')?.checked) activeZones.push("โซนที่ 2");
+    if (document.getElementById('v13_switch')?.checked) activeZones.push("โซนที่ 3");
+    if (document.getElementById('v14_switch')?.checked) activeZones.push("โซนที่ 4");
 
+    // 4. แสดงผลลัพธ์
     if (activeZones.length > 0) {
         statusElement.innerText = `${activeZones.join(', ')} กำลังรดน้ำ | ระบบ : ${systemText} | โหมด : ${modeName}`;
         statusElement.style.color = "#336600"; 
@@ -250,23 +353,6 @@ function updateStatusText() {
         statusElement.style.color = "#747d8c";
     }
 }
-
-function saveTimer() {
-    const selectedZone = document.querySelector('input[name="timer_zone"]:checked');
-    if (!selectedZone) return alert("เลือกโซนก่อน");
-    const pinR1 = selectedZone.value;
-    const pinR2 = "V" + (parseInt(pinR1.substring(1)) + 4);
-    const s1 = timeToSeconds(document.getElementById('start_t1').value);
-    const e1 = timeToSeconds(document.getElementById('stop_t1').value);
-    const s2 = timeToSeconds(document.getElementById('start_t2').value);
-    const e2 = timeToSeconds(document.getElementById('stop_t2').value);
-    
-    if (isNaN(s1) || isNaN(e1) || isNaN(s2) || isNaN(e2)) return alert("กรอกเวลาให้ครบ");
-    new Image().src = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pinR1}?value=${s1}&value=${e1}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
-    setTimeout(() => { new Image().src = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pinR2}?value=${s2}&value=${e2}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`; }, 500);
-    alert("บันทึกสำเร็จ");
-}
-
 // =====================
 // 🚀 START
 // =====================
