@@ -225,6 +225,29 @@ function saveTimer() {
     setTimeout(() => fetchData(), 1500);
 }
 
+// ฟังก์ชันสำหรับดึงค่าปัจจุบันจาก Blynk มาแสดงผลในหน้า Config
+async function syncConfigUI() {
+    const configPins = ['V26', 'V30', 'V31', 'V55'];
+    
+    for (let pin of configPins) {
+        try {
+            const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
+            const data = await response.json();
+            const val = data[0];
+
+            // อัปเดตตัวเลขหน้าจอ
+            const label = document.getElementById(`${pin.toLowerCase()}-val`);
+            if (label) label.innerText = val;
+
+            // อัปเดตตำแหน่ง Slider
+            const slider = document.getElementById(`input-${pin.toLowerCase()}`);
+            if (slider) slider.value = val;
+            
+        } catch (error) {
+            console.error(`Sync error for ${pin}:`, error);
+        }
+    }
+}
 // =====================
 // 🚀 START
 // =====================
