@@ -115,60 +115,87 @@
 <div class="container pb-5">
     <div class="tab-content" id="pills-tabContent">
         
-        <!-- 1. TAB DASHBOARD -->
-        <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel">
-            <div class="row g-3">
-                <div class="col-6 col-md-3">
-                    <div class="card p-3 h-100 text-center">
-                        <div class="icon-box bg-temp mx-auto"><i class="bi bi-thermometer-sun fs-3"></i></div>
-                        <div class="text-muted small fw-bold">อุณหภูมิ</div>
-                        <h3 id="temp" class="fw-bold mb-0">--°C</h3>
-                    </div>
+       <!-- 1. TAB DASHBOARD (PROFESSIONAL VERSION) -->
+<div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel">
+    
+    <!-- ส่วนแสดงตัวเลขสรุป (Quick Stats) -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="card p-3 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #ffffff 0%, #f9fbff 100%);">
+                <div class="icon-box bg-temp mx-auto shadow-sm"><i class="bi bi-thermometer-half fs-3"></i></div>
+                <small class="text-uppercase ls-1 fw-bold text-muted" style="font-size: 0.7rem;">Temperature</small>
+                <h2 id="temp" class="fw-bold mb-0 mt-1" style="color: #2d3436;">--°C</h2>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card p-3 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #ffffff 0%, #f4fff8 100%);">
+                <div class="icon-box bg-humid mx-auto shadow-sm"><i class="bi bi-droplets fs-3"></i></div>
+                <small class="text-uppercase ls-1 fw-bold text-muted" style="font-size: 0.7rem;">Humidity</small>
+                <h2 id="humi" class="fw-bold mb-0 mt-1" style="color: #2d3436;">--%</h2>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card p-3 text-center border-0 shadow-sm">
+                <div class="icon-box bg-rain mx-auto shadow-sm"><i class="bi bi-cloud-rain fs-3"></i></div>
+                <small class="text-uppercase ls-1 fw-bold text-muted" style="font-size: 0.7rem;">Rainfall</small>
+                <h2 id="rain" class="fw-bold mb-0 mt-1" style="color: #2d3436;">--</h2>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="card p-3 text-center border-0 shadow-sm">
+                <div class="icon-box bg-vpd mx-auto shadow-sm"><i class="bi bi-cpu fs-3"></i></div>
+                <small class="text-uppercase ls-1 fw-bold text-muted" style="font-size: 0.7rem;">VPD Level</small>
+                <h2 id="vpd_val" class="fw-bold mb-0 mt-1" style="color: #2d3436;">--</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- ส่วนของกราฟวิเคราะห์ข้อมูล (Analytics Chart) -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card p-4 border-0 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>แนวโน้มสภาพอากาศ (Real-time Analytics)</h5>
+                    <span class="badge bg-primary-subtle text-primary rounded-pill px-3">Live Updates</span>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="card p-3 h-100 text-center">
-                        <div class="icon-box bg-humid mx-auto"><i class="bi bi-droplets-fill fs-3"></i></div>
-                        <div class="text-muted small fw-bold">ความชื้นอากาศ</div>
-                        <h3 id="humi" class="fw-bold mb-0">--%</h3>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card p-3 h-100 text-center">
-                        <div class="icon-box bg-rain mx-auto"><i class="bi bi-cloud-rain-heavy-fill fs-3"></i></div>
-                        <div class="text-muted small fw-bold">ปริมาณฝน</div>
-                        <h3 id="rain" class="fw-bold mb-0">--</h3>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="card p-3 h-100 text-center">
-                        <div class="icon-box bg-vpd mx-auto"><i class="bi bi-speedometer2"></i></div>
-                        <div class="text-muted small fw-bold">ค่า VPD</div>
-                        <h3 id="vpd_val" class="fw-bold mb-0">--</h3>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="card p-3 h-100 text-center">
-                        <div class="icon-box bg-vpd mx-auto"><i class="bi bi-wind fs-3"></i></div>
-                        <div class="text-muted small fw-bold">การคายน้ำทุเรียน</div>
-                        <h3 id="status_val" class="fw-bold mb-0">--</h3>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4">
-                    <div class="card p-3 h-100 text-center">
-                        <div class="icon-box bg-vpd mx-auto"><i class="bi bi-water fs-3"></i></div>
-                        <div class="text-muted small fw-bold">น้ำที่ใช้วันนี้</div>
-                        <h3 id="water_used" class="fw-bold mb-0">-- (ลิตร)</h3>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4">
-                    <div class="card p-3 h-100 text-center">
-                        <div class="icon-box bg-vpd mx-auto"><i class="bi bi-moisture fs-3"></i></div>
-                        <div class="text-muted small fw-bold">ความชื้นดิน</div>
-                        <h3 id="soil" class="fw-bold mb-0">--%</h3>
-                    </div>
+                <div style="height: 300px;">
+                    <canvas id="farmChart"></canvas>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- ส่วนข้อมูลเพิ่มเติม (Additional Insights) -->
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card p-3 d-flex flex-row align-items-center border-0 shadow-sm">
+                <div class="icon-box bg-vpd mb-0 me-3 shadow-sm"><i class="bi bi-water"></i></div>
+                <div>
+                    <small class="text-muted d-block">ปริมาณน้ำสะสมวันนี้</small>
+                    <span id="water_used" class="fw-bold fs-5">-- ลิตร</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 d-flex flex-row align-items-center border-0 shadow-sm">
+                <div class="icon-box bg-humid mb-0 me-3 shadow-sm"><i class="bi bi-moisture"></i></div>
+                <div>
+                    <small class="text-muted d-block">ความชื้นดิน (Soil)</small>
+                    <span id="soil" class="fw-bold fs-5">--%</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card p-3 d-flex flex-row align-items-center border-0 shadow-sm">
+                <div class="icon-box bg-temp mb-0 me-3 shadow-sm"><i class="bi bi-activity"></i></div>
+                <div>
+                    <small class="text-muted d-block">การคายน้ำทุเรียน</small>
+                    <span id="status_val" class="fw-bold fs-5">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- 2. TAB CONTROL -->
         <div class="tab-pane fade" id="tab-control" role="tabpanel">
@@ -358,7 +385,47 @@
 
     </div>
 </div>
+<!-- เพิ่ม Library กราฟ (วางไว้ท้ายไฟล์ HTML ก่อนปิด </body>) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+<!-- โค้ดสร้างกราฟ (เพิ่มเข้าไปในไฟล์ script.js ของคุณ) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('farmChart').getContext('2d');
+    const farmChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00'], // ข้อมูลตัวอย่าง
+            datasets: [{
+                label: 'อุณหภูมิ (°C)',
+                data: [28, 30, 34, 35, 32, 29],
+                borderColor: '#ff4757',
+                backgroundColor: 'rgba(255, 71, 87, 0.1)',
+                fill: true,
+                tension: 0.4
+            }, {
+                label: 'ความชื้น (%)',
+                data: [70, 65, 55, 50, 60, 68],
+                borderColor: '#2ed573',
+                backgroundColor: 'rgba(46, 213, 115, 0.1)',
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' }
+            },
+            scales: {
+                y: { beginAtZero: false, grid: { display: false } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+});
+</script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="script.js"></script>
 </body>
