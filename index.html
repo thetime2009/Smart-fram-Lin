@@ -135,17 +135,21 @@
             </div>
         </div> -->
         <!-- Card Temperature -->
-<div class="card text-center shadow-sm p-3">
-    <canvas id="gauge-temp"></canvas>
-    <div class="mt-2 fw-bold">TEMPERATURE</div>
-    <div id="temp" class="h4">0°C</div>
+<div class="card text-center shadow-sm p-2" style="min-height: 200px;">
+    <div style="height: 120px; width: 100%; display: flex; justify-content: center;">
+        <canvas id="gauge-temp"></canvas>
+    </div>
+    <div class="mt-1 fw-bold" style="font-size: 0.8rem; color: #888;">TEMPERATURE</div>
+    <div id="temp" class="h5 fw-bold">0°C</div>
 </div>
 
 <!-- Card Humidity -->
-<div class="card text-center shadow-sm p-3">
-    <canvas id="gauge-humi"></canvas>
-    <div class="mt-2 fw-bold">HUMIDITY</div>
-    <div id="humi" class="h4">0%</div>
+<div class="card text-center shadow-sm p-2" style="min-height: 200px;">
+    <div style="height: 120px; width: 100%; display: flex; justify-content: center;">
+        <canvas id="gauge-humi"></canvas>
+    </div>
+    <div class="mt-1 fw-bold" style="font-size: 0.8rem; color: #888;">HUMIDITY</div>
+    <div id="humi" class="h5 fw-bold">0%</div>
 </div>
         <div class="col-md-3 col-6">
             <div class="card p-3 text-center border-0 shadow-sm">
