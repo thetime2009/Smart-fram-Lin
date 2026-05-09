@@ -148,22 +148,14 @@ function updateUI(pin, data) {
     // เพิ่มส่วนนี้เข้าไปในฟังก์ชัน updateUI(pin, data) เดิมของคุณ
     // 🔧 ส่วนจัดการโหมดการทำงาน (V27)
     if (pin === 'V27') {
-        let modeName = "ไม่ระบุโหมด";
-        // แปลงค่า val ที่ได้จาก Blynk (มักมาในรูปแบบ Index เช่น "1" หรือ "2")
-        const modeIndex = String(val); 
-
-        if (modeIndex === "1") {
-            modeName = "โหมดตั้งเวลารดน้ำ";
-        } else if (modeIndex === "2") {
-            modeName = "โหมดคุมความชื้น";
-        }
-
-        // เก็บค่าข้อความไว้ใน Element เพื่อให้ฟังก์ชันอื่นเรียกใช้
-        const modeDisplay = document.getElementById('v27_mode_text');
-        if (modeDisplay) {
-            modeDisplay.innerText = modeName;
-        }
+    const menuSelect = document.getElementById('menu_select');
+    if (menuSelect) {
+        // อัปเดตตัว Select ให้เลือกตามค่าที่มาจาก Blynk (1 หรือ 2)
+        menuSelect.value = String(val); 
+        // สั่งให้สถานะด้านล่างอัปเดตข้อความตาม
+        updateStatusText();
     }
+}
 
     // 🔧 AUTO MODE & SWITCHES
     if (pin === 'V10') {
@@ -332,32 +324,35 @@ function updateStatusText() {
     const statusElement = document.getElementById('working-status');
     if (!statusElement) return;
 
-    // 1. ตรวจสอบ "ระบบ" (V10)
+    // 1. ตรวจสอบระบบ (Auto/Manual) จาก Switch V10
     const isAuto = document.getElementById('v10_switch')?.checked;
     const systemText = isAuto ? "ระบบอัตโนมัติ (Smart Logic)" : "โหมดควบคุมเอง (Manual)"; 
     
-    // 2. ดึง "ชื่อโหมด" จากข้อความที่เราแปลงไว้ในขั้นตอนที่ 1
-    const modeDisplay = document.getElementById('v27_mode_text');
-    const modeName = modeDisplay ? modeDisplay.innerText : "กำลังโหลด...";
+    // 2. ดึงข้อความโหมดจาก Select ที่มี id="menu_select"
+    const menuSelect = document.getElementById('menu_select');
+    let modeName = "กำลังโหลด...";
+    
+    if (menuSelect && menuSelect.options[menuSelect.selectedIndex]) {
+        // ดึงข้อความภาษาไทยข้างใน <option> เช่น "⏰ โหมดตั้งเวลา..."
+        modeName = menuSelect.options[menuSelect.selectedIndex].text;
+    }
 
-    // 3. ตรวจสอบโซนที่กำลังทำงาน (V11-V14)
+    // 3. ตรวจสอบโซนที่กำลังทำงาน
     let activeZones = [];
     if (document.getElementById('v11_switch')?.checked) activeZones.push("โซนที่ 1");
     if (document.getElementById('v12_switch')?.checked) activeZones.push("โซนที่ 2");
     if (document.getElementById('v13_switch')?.checked) activeZones.push("โซนที่ 3");
     if (document.getElementById('v14_switch')?.checked) activeZones.push("โซนที่ 4");
 
-    // 4. แสดงข้อความสถานะรวม
+    // 4. แสดงผลลัพธ์
     if (activeZones.length > 0) {
-        // ตัวอย่าง: โซนที่ 1 กำลังรดน้ำ | ระบบ : ระบบอัตโนมัติ | โหมด : โหมดตั้งเวลารดน้ำ
         statusElement.innerText = `${activeZones.join(', ')} กำลังรดน้ำ | ระบบ : ${systemText} | โหมด : ${modeName}`;
-        statusElement.style.color = "#336600"; // สีเขียวเข้มสื่อถึงการทำงาน
+        statusElement.style.color = "#336600"; 
     } else {
         statusElement.innerText = `ระบบพร้อมทำงาน | ระบบ : ${systemText} | โหมด : ${modeName}`;
-        statusElement.style.color = "#747d8c"; // สีเทาเมื่อสถานะปกติ
+        statusElement.style.color = "#747d8c";
     }
 }
-
 // =====================
 // 🚀 START
 // =====================
