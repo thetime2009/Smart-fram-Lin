@@ -313,24 +313,29 @@ function updateStatusText() {
     const statusElement = document.getElementById('working-status');
     if (!statusElement) return;
 
-    // 1. ตรวจสอบโหมดปัจจุบัน
+    // 1. ตรวจสอบ "ระบบ" ปัจจุบัน (V10)
     const isAuto = document.getElementById('v10_switch')?.checked;
-    // สมมติ V27 เก็บค่าโหมด: 1=ตั้งเวลา, 2=VPD, 3=Manual
-    const modeText = isAuto ? "ระบบอัตโนมัติ (Smart Logic)" : "โหมดควบคุมเอง (Manual)"; 
+    const systemText = isAuto ? "ระบบอัตโนมัติ (Smart Logic)" : "โหมดควบคุมเอง (Manual)"; 
     
-    // 2. ตรวจสอบว่าโซนไหนเปิดอยู่บ้าง
+    // 2. ดึงค่า "โหมด" จาก V27
+    // หมายเหตุ: ดึงจาก Text ของ Dropdown หรือ Label ที่เก็บค่า V27 ไว้บนหน้าจอ
+    const modeV27Element = document.getElementById('v27_mode_text'); // ปรับ ID ให้ตรงกับใน HTML ของคุณ
+    const modeName = modeV27Element ? modeV27Element.innerText : "(ดึงค่า V27)";
+
+    // 3. ตรวจสอบสถานะการทำงานของแต่ละโซน (V11-V14)
     let activeZones = [];
     if (document.getElementById('v11_switch')?.checked) activeZones.push("โซนที่ 1");
     if (document.getElementById('v12_switch')?.checked) activeZones.push("โซนที่ 2");
     if (document.getElementById('v13_switch')?.checked) activeZones.push("โซนที่ 3");
     if (document.getElementById('v14_switch')?.checked) activeZones.push("โซนที่ 4");
 
-    // 3. สร้างข้อความแสดงผล
+    // 4. สร้างข้อความแสดงผลตามรูปแบบที่ต้องการ
+    // รูปแบบ: โซนที่ X กำลังรดน้ำ | ระบบ : X | โหมด : X
     if (activeZones.length > 0) {
-        statusElement.innerText = `${activeZones.join(', ')} กำลังรดน้ำ | โหมด: ${modeText}`;
-        statusElement.style.color = "#336600"; // สีเขียวเมื่อทำงาน
+        statusElement.innerText = `${activeZones.join(', ')} กำลังรดน้ำ | ระบบ : ${systemText} | โหมด : ${modeName}`;
+        statusElement.style.color = "#336600"; // สีเขียวเข้มเมื่อทำงาน
     } else {
-        statusElement.innerText = `ระบบพร้อมทำงาน | โหมด: ${modeText}`;
+        statusElement.innerText = `ระบบพร้อมทำงาน | ระบบ : ${systemText} | โหมด : ${modeName}`;
         statusElement.style.color = "#747d8c"; // สีเทาเมื่อหยุดพัก
     }
 }
