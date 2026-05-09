@@ -70,41 +70,35 @@ async function fetchData() {
 }
 
 // =====================
-// 🎯 MAIN UI UPDATE
+// 🎯 MAIN UI UPDATE (REVISED)
 // =====================
 function updateUI(pin, data) {
     if (!data) return;
 
     let parts = parseBlynkTime(data);
-
-    console.log("PIN:", pin, parts);
-
     let val = parts[0];
     let cleanValue = val;
 
-    // =====================
-    // 🔧 AUTO MODE
-    // =====================
+    // 🔧 AUTO MODE (V10) - แก้ไขเพื่อไม่ให้ขัดแย้งกับการตั้งเวลา
     if (pin === 'V10') {
         const isAuto = (val === "1");
-
         const v10Switch = document.getElementById('v10_switch');
         if (v10Switch) v10Switch.checked = isAuto;
 
+        // ปิดการใช้งานปุ่มกด Manual เมื่ออยู่ในโหมด Auto
         ['v11_switch','v12_switch','v13_switch','v14_switch'].forEach(id => {
             const sw = document.getElementById(id);
             if (sw) {
                 sw.disabled = isAuto;
-                if (isAuto) sw.checked = false;
+                // ลบบรรทัด sw.checked = false ออก เพื่อให้สวิตช์แสดงสถานะจริงตามที่ Timer สั่ง
             }
         });
     }
 
-    // =====================
-    // 🔘 SWITCH
-    // =====================
+    // 🔘 SWITCH (V11-V14) - แสดงสถานะตามจริงที่ ESP8266 ส่งมา
     const valveSwitch = document.getElementById(`${pin.toLowerCase()}_switch`);
     if (valveSwitch) {
+        // รองรับทั้งค่า 1 (ON) และ 0 (OFF) ที่มาจาก Hardware
         valveSwitch.checked = (val === "1" || val === "255");
     }
 
