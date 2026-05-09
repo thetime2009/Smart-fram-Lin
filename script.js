@@ -107,7 +107,7 @@ async function getBlynkData(pin) {
 
 async function fetchData() {
     // เพิ่ม Pin V44-V47 สำหรับรอบที่ 2
-    const pins = ['V10','V1','V0','V65','V18','V105','V106','V11','V12','V13','V14','V27','V40','V41','V42','V43','V44','V45','V46','V47','V88'];
+    const pins = ['V10','V1','V0','V65','V18','V105','V106','V11','V12','V13','V14','V27','V40','V41','V42','V43','V50','V51','V52','V53','V88','V26','V30','V31','V55'];
     for (const pin of pins) {
         await getBlynkData(pin);
     }
