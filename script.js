@@ -225,6 +225,45 @@ function saveTimer() {
     setTimeout(() => fetchData(), 1500);
 }
 
+// --- ส่วนการตั้งค่า Gauge ใน initGauges() ---
+function initGauges() {
+    const commonConfig = {
+        width: 120,
+        height: 120,
+        minValue: 0,
+        startAngle: 90,
+        ticksAngle: 180,
+        valueBox: false,
+        borderShadowWidth: 0,
+        borders: false,
+        colorPlate: "transparent", // โปร่งใสให้กลมกลืนกับ Card
+        needleType: "arrow",
+        needleWidth: 3,
+        animationDuration: 1000,
+        animationRule: "easeOutExpo"
+    };
+
+    // เกจวัดอุณหภูมิ (โทนส้ม-แดง)
+    tempGauge = new RadialGauge({
+        ...commonConfig,
+        renderTo: 'gauge-temp',
+        maxValue: 60,
+        majorTicks: ["0","20","40","60"],
+        highlights: [{ "from": 35, "to": 60, "color": "rgba(255, 69, 58, .3)" }],
+        colorNeedle: "#ff4757"
+    }).draw();
+
+    // เกจวัดความชื้น (โทนฟ้า-เขียว)
+    humiGauge = new RadialGauge({
+        ...commonConfig,
+        renderTo: 'gauge-humi',
+        maxValue: 100,
+        majorTicks: ["0","25","50","75","100"],
+        highlights: [{ "from": 70, "to": 100, "color": "rgba(46, 213, 115, .3)" }],
+        colorNeedle: "#2ed573"
+    }).draw();
+}
+
 // =====================
 // 🚀 START
 // =====================
