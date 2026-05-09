@@ -120,7 +120,7 @@
     
     <!-- ส่วนแสดงตัวเลขสรุป (Quick Stats) -->
     <div class="row g-4 mb-4">
-        <div class="col-md-3 col-6">
+        <!-- <div class="col-md-3 col-6">
             <div class="card p-3 text-center border-0 shadow-sm" style="background: linear-gradient(135deg, #ffffff 0%, #f9fbff 100%);">
                 <div class="icon-box bg-temp mx-auto shadow-sm"><i class="bi bi-thermometer-half fs-3"></i></div>
                 <small class="text-uppercase ls-1 fw-bold text-muted" style="font-size: 0.7rem;">Temperature</small>
@@ -133,7 +133,20 @@
                 <small class="text-uppercase ls-1 fw-bold text-muted" style="font-size: 0.7rem;">Humidity</small>
                 <h2 id="humi" class="fw-bold mb-0 mt-1" style="color: #2d3436;">--%</h2>
             </div>
-        </div>
+        </div> -->
+        <!-- Card Temperature -->
+<div class="card text-center shadow-sm p-3">
+    <canvas id="gauge-temp"></canvas>
+    <div class="mt-2 fw-bold">TEMPERATURE</div>
+    <div id="temp" class="h4">0°C</div>
+</div>
+
+<!-- Card Humidity -->
+<div class="card text-center shadow-sm p-3">
+    <canvas id="gauge-humi"></canvas>
+    <div class="mt-2 fw-bold">HUMIDITY</div>
+    <div id="humi" class="h4">0%</div>
+</div>
         <div class="col-md-3 col-6">
             <div class="card p-3 text-center border-0 shadow-sm">
                 <div class="icon-box bg-rain mx-auto shadow-sm"><i class="bi bi-cloud-rain fs-3"></i></div>
@@ -424,6 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+<script src="https://cdn.rawgit.com/Mikhus/canvas-gauges/master/gauge.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="script.js"></script>
 </body>
