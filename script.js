@@ -159,14 +159,14 @@ function updateUI(pin, data) {
     const valveSwitch = document.getElementById(`${pin.toLowerCase()}_switch`);
     if (valveSwitch) valveSwitch.checked = (val === "1" || val === "255");
 
-    // ⏰ TIMER TABLE & INPUT (รอบ 1: V40-V43, รอบ 2: V44-V47)
-    if (['V40','V41','V42','V43','V44','V45','V46','V47'].includes(pin)) {
+    // ⏰ TIMER TABLE & INPUT (รอบ 1: V40-V43, รอบ 2: V50-V53)
+    if (['V40','V41','V42','V43','V50','V51','V52','V53'].includes(pin)) {
         let startSec = parseInt(parts[0]);
         let stopSec  = parseInt(parts[1]);
         let timeRange = secondsToTime(startSec) + " - " + secondsToTime(stopSec);
         
         // อัปเดตในตาราง
-        const tableCell = document.getElementById(`${pin.toLowerCase()}_start`); // ใน HTML รอบ 2 ควรมี id เช่น v44_start
+        const tableCell = document.getElementById(`${pin.toLowerCase()}_start`); // ใน HTML รอบ 2 ควรมี id เช่น v50_start
         if (tableCell) tableCell.innerText = secondsToTime(startSec);
         const stopCell = document.getElementById(`${pin.toLowerCase()}_stop`);
         if (stopCell) stopCell.innerText = secondsToTime(stopSec);
@@ -226,26 +226,32 @@ function saveTimer() {
 }
 
 // ฟังก์ชันสำหรับดึงค่าปัจจุบันจาก Blynk มาแสดงผลในหน้า Config
-async function syncConfigUI() {
+/**
+ * ฟังก์ชันสำหรับจัดการอัปเดตหน้าจอ Config โดยเฉพาะ
+ * @param {string} pin - ชื่อ Virtual Pin จาก Blynk (เช่น 'V26')
+ * @param {string|number} val - ค่าที่ต้องการอัปเดต
+ */
+function updateConfigUI(pin, val) {
+    // 1. กำหนดรายการ Pin ที่เกี่ยวข้องกับหน้า Config
     const configPins = ['V26', 'V30', 'V31', 'V55'];
     
-    for (let pin of configPins) {
-        try {
-            const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
-            const data = await response.json();
-            const val = data[0];
+    // 2. ตรวจสอบว่า Pin ที่ส่งมาอยู่ในกลุ่ม Config หรือไม่
+    if (configPins.includes(pin)) {
+        const pinKey = pin.toLowerCase(); // แปลงเป็นตัวพิมพ์เล็กเพื่อให้ตรงกับ ID ใน HTML
 
-            // อัปเดตตัวเลขหน้าจอ
-            const label = document.getElementById(`${pin.toLowerCase()}-val`);
-            if (label) label.innerText = val;
-
-            // อัปเดตตำแหน่ง Slider
-            const slider = document.getElementById(`input-${pin.toLowerCase()}`);
-            if (slider) slider.value = val;
-            
-        } catch (error) {
-            console.error(`Sync error for ${pin}:`, error);
+        // 3. อัปเดตตัวเลขแสดงผลต่อท้าย (Target: <span id="v26-val">)
+        const label = document.getElementById(`${pinKey}-val`);
+        if (label) {
+            label.innerText = val;
         }
+
+        // 4. อัปเดตตำแหน่งของ Slider (Target: <input id="input-v26">)
+        const slider = document.getElementById(`input-${pinKey}`);
+        if (slider) {
+            slider.value = val;
+        }
+        
+        console.log(`[Config Sync] ${pin} updated to: ${val}`);
     }
 }
 // =====================
