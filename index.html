@@ -422,7 +422,13 @@
          
          
     <!-- Button: V15 รีเซ็ตปั๊มน้ำ -->
-    <button class="btn btn-primary w-100 mb-2" onclick="sendToBlynk('V15', 1)">รีเซ็ตปั๊มน้ำ (V15)</button>
+    <!-- กลุ่มปุ่มตั้งค่า (Config Buttons) -->
+<div class="config-button-group">
+    <button class="btn btn-primary" onclick="sendToBlynk('V15', 1)">รีเซ็ตปั๊มน้ำ (V15)</button>
+    <button class="btn btn-warning" onclick="sendToBlynk('V35', 1)">ปุ่ม V35</button>
+    <button class="btn btn-info" onclick="console.log('Update Mode Clicked')">Update Mode</button>
+    <button class="btn btn-success" onclick="sendToBlynk('V20', 1)">Set Map V20</button>
+</div>
 </div>
     </div>
 </div>
