@@ -328,7 +328,7 @@ function updateStatusText() {
     // 3. สร้างข้อความแสดงผล
     if (activeZones.length > 0) {
         statusElement.innerText = `${activeZones.join(', ')} กำลังรดน้ำ | โหมด: ${modeText}`;
-        statusElement.style.color = "#2ed573"; // สีเขียวเมื่อทำงาน
+        statusElement.style.color = "#336600"; // สีเขียวเมื่อทำงาน
     } else {
         statusElement.innerText = `ระบบพร้อมทำงาน | โหมด: ${modeText}`;
         statusElement.style.color = "#747d8c"; // สีเทาเมื่อหยุดพัก
