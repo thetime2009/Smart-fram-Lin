@@ -381,21 +381,39 @@
  <!-- 4. TAB CONFIG  -->       
 <div class="tab-pane fade" id="tab-config" role="tabpanel">
      <div id="config-content" class="p-3">
-    <!-- Slider: V26 Calibrate Water -->
+    <div class="p-3">
+    <!-- V26 -->
     <div class="mb-3">
         <label class="form-label">CALIBAT การไหลของน้ำ (V26): <b><span id="v26-val">0</span></b></label>
         <input type="range" class="form-range" id="input-v26" min="0" max="100" 
             oninput="document.getElementById('v26-val').innerText = this.value"
             onchange="sendToBlynk('V26', this.value)">
     </div>
-         <div class="mb-4">
-        <label class="form-label">CALIBAT ค่ากินเปียก(ยิ่งน้อยยิ่งเปียก) (V30): <span id="v26-val">0</span></label>
-        <input type="range" class="form-range" id="input-v26" min="0" max="100" onchange="sendToBlynk('V30', this.value)">
+
+    <!-- V30 -->
+    <div class="mb-3">
+        <label class="form-label">ตั้งค่าดินเปียก(ยิ่งน้อยยิ่งเปียก) (V30): <b><span id="v30-val">0</span></b></label>
+        <input type="range" class="form-range" id="input-v30" min="0" max="1023" 
+            oninput="document.getElementById('v30-val').innerText = this.value"
+            onchange="sendToBlynk('V30', this.value)">
     </div>
-         <div class="mb-4">
-        <label class="form-label">CALIBAT ค่าดินแห้ง(ยิ่งมากยิ่งแห้ง) (V31): <span id="v26-val">0</span></label>
-        <input type="range" class="form-range" id="input-v26" min="0" max="100" onchange="sendToBlynk('V31', this.value)">
+
+    <!-- V31 -->
+    <div class="mb-3">
+        <label class="form-label">ตั้งค่าดินแห้ง(ยิ่งเยอะยิ่งแห้ง) (V31): <b><span id="v31-val">0</span></b></label>
+        <input type="range" class="form-range" id="input-v31" min="0" max="1023" 
+            oninput="document.getElementById('v31-val').innerText = this.value"
+            onchange="sendToBlynk('V31', this.value)">
     </div>
+    <!-- V55 พร้อมหน่วยนาที -->
+    <div class="mb-3">
+        <label class="form-label">ความถี่ตรวจเช็คฝน (V55): <b><span id="v55-val">0</span> นาที</b></label>
+        <input type="range" class="form-range" id="input-v55" min="1" max="60" 
+            oninput="document.getElementById('v55-val').innerText = this.value"
+            onchange="sendToBlynk('V55', this.value)">
+    </div>
+</div>
+         
          
     <!-- Button: V15 รีเซ็ตปั๊มน้ำ -->
     <button class="btn btn-primary w-100 mb-2" onclick="sendToBlynk('V15', 1)">รีเซ็ตปั๊มน้ำ (V15)</button>
