@@ -102,6 +102,20 @@
         .form-check-input:checked { background-color: var(--accent-color); border-color: var(--accent-color); }
         .form-check-input:disabled { opacity: 0.5; cursor: not-allowed; }
 
+
+    .log-card {
+        background: white;
+        border-radius: 12px;
+        padding: 10px;
+        border-left: 5px solid #3498db;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }
+    .log-card .pin-name { font-size: 0.75rem; color: #888; font-weight: bold; text-transform: uppercase; }
+    .log-card .pin-value { font-size: 1.1rem; font-weight: 700; color: #2c3e50; }
+
+
+        
         
     </style>
 </head>
@@ -480,6 +494,10 @@
         <div id="log-container" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Courier New', monospace; padding: 15px; border-radius: 12px; height: 400px; overflow-y: auto; font-size: 0.9rem;">
             <div class="text-muted small">[ระบบ] กำลังรอข้อมูลจาก Blynk...</div>
         </div>
+        <div id="live-labels-container" class="row g-2 mt-3">
+    </div>
+
+
     </div>
 </div>
     </div>
