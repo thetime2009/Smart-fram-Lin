@@ -5,6 +5,22 @@ const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 let farmChart; // ตัวแปรสำหรับคุมกราฟ
 
+const PIN_MAP = {
+    'V1': { label: 'อุณหภูมิ', unit: '°C' },
+    'V0': { label: 'ความชื้นอากาศ', unit: '%' },
+    'V65': { label: 'ปริมาณฝน', unit: '' },
+    'V88': { label: 'ความชื้นดิน', unit: '%' },
+    'V18': { label: 'น้ำสะสมวันนี้', unit: ' L' },
+    'V105': { label: 'ค่า VPD', unit: '' },
+    'V106': { label: 'การคายน้ำ', unit: '' },
+    'V10': { label: 'โหมดออโต้', unit: '' },
+    'V11': { label: 'โซน 1', unit: '' },
+    'V12': { label: 'โซน 2', unit: '' },
+    'V13': { label: 'โซน 3', unit: '' },
+    'V14': { label: 'โซน 4', unit: '' },
+    'V27': { label: 'โหมดปัจจุบัน', unit: '' }
+};
+
 // =====================
 // ⏰ TIME FUNCTIONS
 // =====================
@@ -200,7 +216,9 @@ function updateUI(pin, data) {
     // เพิ่มบรรทัดนี้ไว้ท้ายสุดของฟังก์ชัน updateUI
     updateStatusText();
     // เพิ่มบรรทัดนี้เพื่อแสดงในหน้า Log
-    addLog(pin, val);
+    // --- เพิ่ม 2 บรรทัดนี้ ---
+    addLog(pin, val);              // แสดงใน Terminal ดำๆ
+    updateLiveLabels(pin, val);    // แสดงในกล่อง Label ด้านล่าง
 }
 
 // =====================
@@ -389,6 +407,36 @@ function addLog(pin, value) {
 // ฟังก์ชันล้าง Log
 function clearLogs() {
     document.getElementById('log-container').innerHTML = '<div class="text-muted small">[ระบบ] ล้างข้อมูลสำเร็จ...</div>';
+}
+
+function updateLiveLabels(pin, val) {
+    const container = document.getElementById('live-labels-container');
+    const pinInfo = PIN_MAP[pin];
+    if (!pinInfo) return; // ถ้าไม่มีใน Map ไม่ต้องสร้าง Card
+
+    let cardId = `card-${pin}`;
+    let cardElement = document.getElementById(cardId);
+
+    // ถ้ายังไม่มีการสร้าง Card ของ Pin นี้ ให้สร้างขึ้นมาใหม่
+    if (!cardElement) {
+        cardElement = document.createElement('div');
+        cardElement.className = 'col-6 col-md-3 col-lg-2'; // จัดเรียงแถวละ 6 กล่อง (จอใหญ่)
+        cardElement.id = cardId;
+        container.appendChild(cardElement);
+    }
+
+    // จัดการข้อความพิเศษสำหรับบาง Pin
+    let displayVal = val;
+    if (pin === 'V106') displayVal = (val === "1" ? "คายน้ำสูง" : val === "2" ? "คายน้ำดีมาก" : val);
+    if (['V10','V11','V12','V13','V14'].includes(pin)) displayVal = (val === "1" || val === "255" ? "เปิด" : "ปิด");
+
+    // ใส่ข้อมูลลงใน Card
+    cardElement.innerHTML = `
+        <div class="log-card" style="border-left-color: ${pin.startsWith('V1') ? '#ff4757' : '#2ecc71'}">
+            <div class="pin-name">${pin} ${pinInfo.label}</div>
+            <div class="pin-value">${displayVal}${pinInfo.unit}</div>
+        </div>
+    `;
 }
 // =====================
 // 🚀 START
