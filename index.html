@@ -135,6 +135,11 @@
                     <i class="bi bi-calendar-event me-2"></i>Config
                 </button>
             </li>
+            <li class="nav-item" role="presentation">
+    <button class="nav-link" id="pills-log-tab" data-bs-toggle="pill" data-bs-target="#tab-log" type="button" role="tab">
+        <i class="bi bi-terminal me-2"></i>Log
+    </button>
+</li>
         </ul>
     </div>
 </header>
@@ -459,6 +464,23 @@
 <button id="btn-v35" class="btn btn-secondary" onclick="handleSwitchButton('V35')">ปุ่ม V35</button>
 <button id="btn-update" class="btn btn-secondary" onclick="handleSwitchButton('UpdateMode')">Update Mode</button>
 </div>
+</div>
+         <!-- 5. TAB Log  -->    
+        <div class="tab-pane fade" id="tab-log" role="tabpanel">
+    <div class="card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h5 class="fw-bold mb-0">
+                <span class="icon-box bg-temp me-2 mb-0" style="width:35px; height:35px; background: rgba(108, 117, 125, 0.1); color: #6c757d;">
+                    <i class="bi bi-journal-text"></i>
+                </span>
+                Blynk System Logs
+            </h5>
+            <button class="btn btn-sm btn-outline-secondary" onclick="clearLogs()">Clear Log</button>
+        </div>
+        <div id="log-container" style="background: #1e1e1e; color: #d4d4d4; font-family: 'Courier New', monospace; padding: 15px; border-radius: 12px; height: 400px; overflow-y: auto; font-size: 0.9rem;">
+            <div class="text-muted small">[ระบบ] กำลังรอข้อมูลจาก Blynk...</div>
+        </div>
+    </div>
 </div>
     </div>
 </div>
