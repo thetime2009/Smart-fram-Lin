@@ -353,6 +353,39 @@ function updateStatusText() {
         statusElement.style.color = "#747d8c";
     }
 }
+// ฟังก์ชันสำหรับเพิ่มข้อความลงใน Log
+function addLog(pin, value) {
+    const logContainer = document.getElementById('log-container');
+    const now = new Date();
+    const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
+                    now.getMinutes().toString().padStart(2, '0') + ":" + 
+                    now.getSeconds().toString().padStart(2, '0');
+    
+    const logEntry = document.createElement('div');
+    logEntry.style.marginBottom = '5px';
+    logEntry.style.borderBottom = '1px solid #333';
+    logEntry.style.paddingBottom = '3px';
+    
+    // แต่งสีตามประเภทข้อมูล
+    let color = "#2ecc71"; // สีเขียวสำหรับค่าทั่วไป
+    if(pin.includes('V')) color = "#3498db"; // สีฟ้าสำหรับ Pin
+
+    logEntry.innerHTML = `<span style="color: #888;">[${timeStr}]</span> 
+                          <span style="color: ${color}; fw-bold">Update ${pin}:</span> 
+                          <span style="color: #f1c40f;">${value}</span>`;
+    
+    logContainer.prepend(logEntry); // เอาข้อมูลใหม่ไว้บนสุด
+
+    // จำกัดจำนวน Log ไม่ให้เยอะเกินไป (เช่น 100 รายการ)
+    if (logContainer.childNodes.length > 100) {
+        logContainer.removeChild(logContainer.lastChild);
+    }
+}
+
+// ฟังก์ชันล้าง Log
+function clearLogs() {
+    document.getElementById('log-container').innerHTML = '<div class="text-muted small">[ระบบ] ล้างข้อมูลสำเร็จ...</div>';
+}
 // =====================
 // 🚀 START
 // =====================
