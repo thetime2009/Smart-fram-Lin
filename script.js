@@ -200,7 +200,7 @@ function updateUI(pin, data) {
     // เพิ่มบรรทัดนี้ไว้ท้ายสุดของฟังก์ชัน updateUI
     updateStatusText();
     // เพิ่มบรรทัดนี้เพื่อแสดงในหน้า Log
-    addLog(pin, value);
+    addLog(pin, val);
 }
 
 // =====================
@@ -208,6 +208,8 @@ function updateUI(pin, data) {
 // =====================
 function updateBlynk(pin, value) {
     new Image().src = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
+    // เพิ่มบรรทัดนี้เพื่อ Log ตอนที่เราสั่งงานจากเว็บ
+    addLog(`Write ${pin}`, value);
     setTimeout(() => getBlynkData(pin), 1000);
 }
 
