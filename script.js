@@ -199,6 +199,8 @@ function updateUI(pin, data) {
     }
     // เพิ่มบรรทัดนี้ไว้ท้ายสุดของฟังก์ชัน updateUI
     updateStatusText();
+    // เพิ่มบรรทัดนี้เพื่อแสดงในหน้า Log
+    addLog(pin, value);
 }
 
 // =====================
