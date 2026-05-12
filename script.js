@@ -161,10 +161,37 @@ async function fetchData() {
 }
 
 async function fetchData() {
-    // เพิ่ม Pin V44-V47 สำหรับรอบที่ 2
-    const pins = ['V10','V1','V0','V65','V18','V105','V106','V11','V12','V13','V14','V27','V40','V41','V42','V43','V50','V51','V52','V53','V88','V26','V30','V31','V55'];
-    for (const pin of pins) {
-        await getBlynkData(pin);
+    const pins = [
+        'V10','V1','V0','V65','V18','V105','V106',
+        'V11','V12','V13','V14','V27','V40','V41',
+        'V42','V43','V50','V51','V52','V53','V88',
+        'V26','V30','V31','V55'
+    ];
+
+    const url = `${PROXY_URL}?action=multi-get&pins=${pins.join(',')}`;
+
+    try {
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json(); 
+            
+            // ✅ แก้ไขจุดนี้: วนลูปส่งข้อมูลเข้า updateUI โดยตรง
+            for (const pin in data) {
+                if (data[pin] !== null) {
+                    // data[pin] จะเป็น Array เช่น [32.5]
+                    // เราจะส่งค่านี้เข้าไปให้ฟังก์ชัน updateUI จัดการต่อ
+                    updateUI(pin, data[pin]);
+                }
+            }
+            
+            // อัปเดตค่าหน้า Config (Slider)
+            ['V26', 'V30', 'V31', 'V55'].forEach(p => {
+                if(data[p]) updateConfigUI(p, data[p][0]);
+            });
+            
+        }
+    } catch (error) {
+        console.error("Fetch Data Error:", error);
     }
 }
 
