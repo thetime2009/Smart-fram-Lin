@@ -123,47 +123,20 @@ header {
 
 .tree-icon {
     position: absolute;
-    top: 35%;             /* ปรับระดับความสูงตามใจชอบ */
-    font-size: 180px;     /* ขนาดของต้นไม้ */
-    color: rgba(255, 255, 255, 0.2); /* สีขาวแบบจางๆ (0.2 คือความโปร่งใส) */
-    pointer-events: none;
-    z-index: 1;
-}
-
-.tree-left {
-    left: 90px;           /* ระยะห่างจากขอบซ้าย */
-}
-
-.tree-right {
-    right: 90px;          /* ระยะห่างจากขอบขวา */
-    transform: scaleX(-1); /* กลับด้านต้นไม้ให้สมมาตรกัน */
-}
-
-/* ปรับขนาดสำหรับมือถือ */
-@media (max-width: 768px) {
-    .tree-icon {
-        font-size: 80px;
-        top: 20%;
-        opacity: 0.15;
-    }
-}
-
-.tree-icon {
-    position: absolute;
     top: 50%;
     transform: translateY(-10%);
-    opacity: 0.2; /* ความจางของรูป (ปรับได้ตามใจชอบ 0.1 - 1.0) */
+    opacity: 1.0; /* ความจางของรูป (ปรับได้ตามใจชอบ 0.1 - 1.0) */
     width: 150px; /* ขนาดความกว้างของรูปต้นไม้ */
     pointer-events: none; /* ป้องกันไม่ให้รูปไปบังการคลิกปุ่ม */
     filter: brightness(0) invert(1); /* ทำให้รูปกลายเป็นสีขาวสนิท (กรณีรูปต้นฉบับไม่ใช่สีขาว) */
 }
 
 .tree-left {
-    left: 20px; /* ระยะห่างจากด้านซ้าย */
+    left: 90px; /* ระยะห่างจากด้านซ้าย */
 }
 
 .tree-right {
-    right: 20px; /* ระยะห่างจากด้านขวา */
+    right: 90px; /* ระยะห่างจากด้านขวา */
     transform: translateY(-50%) scaleX(-1); /* กลับด้านรูปให้ดูสมดุล */
 }
 
