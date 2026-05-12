@@ -4,7 +4,7 @@
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 // const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 // แก้บรรทัดนี้: ใส่ URL ของ Google Apps Script ที่คุณ Deploy มา
-const PROXY_URL = "https://script.google.com/macros/s/AKfycbwDeiau9SIHj6GvWbK2e4Si_8ufZfjrC9-GL4_pJOxPyLZ8HvFgUmaZr-Z42_4xfxdb/exec";
+const PROXY_URL = "https://script.google.com/macros/s/AKfycbzoFUp3IEQ1cXDYwhEA08FtBPHQfwZXP0OHc6QF_1tsHgQjKVPzVBlj-RPUJicS-M-T/exec";
 
 
 let farmChart; // ตัวแปรสำหรับคุมกราฟ
