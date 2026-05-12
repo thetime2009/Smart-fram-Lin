@@ -116,8 +116,36 @@
 
         /* สไตล์สำหรับรูปต้นไม้ใน Header */
 header {
-    position: relative; /* เพื่อให้รูปที่อยู่ข้างในอ้างอิงตำแหน่งจากตัว header */
-    overflow: hidden;   /* ป้องกันไม่ให้รูปต้นไม้ทะลุขอบโค้งออกไป */
+    position: relative;
+    overflow: hidden;
+    background: var(--primary-gradient); /* ตรวจสอบว่ามีบรรทัดนี้อยู่ */
+}
+
+.tree-icon {
+    position: absolute;
+    top: 35%;             /* ปรับระดับความสูงตามใจชอบ */
+    font-size: 180px;     /* ขนาดของต้นไม้ */
+    color: rgba(255, 255, 255, 0.2); /* สีขาวแบบจางๆ (0.2 คือความโปร่งใส) */
+    pointer-events: none;
+    z-index: 1;
+}
+
+.tree-left {
+    left: 30px;           /* ระยะห่างจากขอบซ้าย */
+}
+
+.tree-right {
+    right: 30px;          /* ระยะห่างจากขอบขวา */
+    transform: scaleX(-1); /* กลับด้านต้นไม้ให้สมมาตรกัน */
+}
+
+/* ปรับขนาดสำหรับมือถือ */
+@media (max-width: 768px) {
+    .tree-icon {
+        font-size: 80px;
+        top: 20%;
+        opacity: 0.15;
+    }
 }
 
 .tree-icon {
@@ -158,8 +186,8 @@ header {
         <!-- <h2 class="fw-bold"><i class="bi bi-leaf-fill me-2"></i>Smart Farm Pro</h2>
         <h4 class="mb-3 opacity-65">ระบบจัดการสวนทุเรียนอัจฉริยะ แม่หลิน</h4> -->
         
-    <img src="https://cdn-icons-png.flaticon.com/512/490/490391.png" class="tree-icon tree-left" alt="tree">
-    <img src="https://cdn-icons-png.flaticon.com/512/490/490391.png" class="tree-icon tree-right" alt="tree">
+    <i class="bi bi-tree tree-icon tree-left"></i>
+    <i class="bi bi-tree tree-icon tree-right"></i>
 
     <div class="container" style="position: relative; z-index: 2;">
         <h2 class="fw-bold"><i class="bi bi-leaf-fill me-2"></i>Smart Farm Pro</h2>
