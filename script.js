@@ -2,7 +2,6 @@
 // 🔑 CONFIG & VARIABLES
 // =====================
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
-// const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
 // แก้บรรทัดนี้: ใส่ URL ของ Google Apps Script ที่คุณ Deploy มา
 const PROXY_URL = "https://script.google.com/macros/s/AKfycbw41D9P2Zt2AbCBk_cGqgB6rpzHmT8WBDTx-3SsOcLbLWfl8s1yVCvC9JnMP6qFdMuA/exec";
 
@@ -122,8 +121,6 @@ function updateChart(temp, humi) {
 // =====================
 // 📡 DATA FETCHING
 // =====================
-     // เปลี่ยนมาเรียกผ่าน Proxy แทนการเรียก Blynk ตรงๆ
-      // ฟังก์ชันสำหรับดึงค่า (Get)
 async function getBlynkData(pin) {
     try {
         // เปลี่ยนมาเรียกผ่าน Proxy แทนการเรียก Blynk ตรงๆ
@@ -246,7 +243,6 @@ function updateUI(pin, data) {
 // =====================
 // 📤 SEND & SAVE
 // =====================
-// ฟังก์ชันสำหรับส่งค่า (Update)
 function updateBlynk(pin, value) {
     // เลิกใช้ new Image().src เพราะมันจัดการ Error ยากและติด HTTPS
     fetch(`${PROXY_URL}?action=update&pin=${pin}&value=${value}`)
