@@ -2,7 +2,10 @@
 // 🔑 CONFIG & VARIABLES
 // =====================
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
-const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
+// const BLYNK_URL = "http://blynk.iot-cm.com:8080/"; 
+// แก้บรรทัดนี้: ใส่ URL ของ Google Apps Script ที่คุณ Deploy มา
+const PROXY_URL = "https://script.google.com/macros/s/AKfycbwDeiau9SIHj6GvWbK2e4Si_8ufZfjrC9-GL4_pJOxPyLZ8HvFgUmaZr-Z42_4xfxdb/exec";
+
 let farmChart; // ตัวแปรสำหรับคุมกราฟ
 
 const PIN_MAP = {
@@ -120,11 +123,16 @@ function updateChart(temp, humi) {
 // =====================
 async function getBlynkData(pin) {
     try {
-        const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}?t=${Date.now()}`);
+        // เปลี่ยนมาเรียกผ่าน Proxy แทนการเรียก Blynk ตรงๆ
+        const response = await fetch(`${PROXY_URL}?action=get&pin=${pin}&t=${Date.now()}`);
         if (response.ok) {
             let rawData = await response.text();
             let data;
-            try { data = JSON.parse(rawData); } catch { data = rawData; }
+            try { 
+                data = JSON.parse(rawData); 
+            } catch { 
+                data = rawData; 
+            }
             updateUI(pin, data);
         }
     } catch (error) {
@@ -236,10 +244,13 @@ function updateUI(pin, data) {
 // 📤 SEND & SAVE
 // =====================
 function updateBlynk(pin, value) {
-    new Image().src = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
-    // เพิ่มบรรทัดนี้เพื่อ Log ตอนที่เราสั่งงานจากเว็บ
-    addLog(`Write ${pin}`, value);
-    setTimeout(() => getBlynkData(pin), 1000);
+    // เลิกใช้ new Image().src เพราะมันจัดการ Error ยากและติด HTTPS
+    fetch(`${PROXY_URL}?action=update&pin=${pin}&value=${value}`)
+        .then(() => {
+            addLog(`Write ${pin}`, value);
+            setTimeout(() => getBlynkData(pin), 1000);
+        })
+        .catch(err => console.error("Send Error:", err));
 }
 
 function toggleBlynk(pin, isChecked) {
@@ -257,6 +268,21 @@ function saveTimer() {
     const e1 = timeToSeconds(document.getElementById('stop_t1').value);
     const s2 = timeToSeconds(document.getElementById('start_t2').value);
     const e2 = timeToSeconds(document.getElementById('stop_t2').value);
+    // สร้างข้อมูลที่จะส่ง (ต้องระบุ action=update ด้วย)
+    const val1 = `${s1}&value=${e1}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
+    const url1 = `${PROXY_URL}?action=update&pin=${pinR1}&value=${val1}`;
+    
+    const val2 = `${s2}&value=${e2}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
+    const url2 = `${PROXY_URL}?action=update&pin=${pinR2}&value=${val2}`;
+
+    fetch(url1)
+        .then(() => {
+            setTimeout(() => { fetch(url2); }, 500);
+            alert(`บันทึกสำเร็จสำหรับ ${selectedZone.id}`);
+            setTimeout(() => fetchData(), 1500);
+        });
+
+    
 
     if (isNaN(s1) || isNaN(e1) || isNaN(s2) || isNaN(e2)) return alert("กรอกเวลาให้ครบทั้ง 2 รอบ");
 
@@ -279,18 +305,11 @@ function saveTimer() {
  * ใช้สำหรับ Slider ในหน้า Config (V26, V30, V31, V55)
  */
 async function sendToBlynk(pin, value) {
-    // 1. สร้าง URL สำหรับ Update ค่า
-    const url = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pin}?value=${value}`;
-
+    const url = `${PROXY_URL}?action=update&pin=${pin}&value=${value}`;
     try {
-        // 2. ส่งข้อมูลไปที่ Blynk
         const response = await fetch(url);
-        
         if (response.ok) {
             console.log(`[Blynk Update] Success: ${pin} = ${value}`);
-            
-            // 3. อัปเดต UI หน้าเว็บทันที (ตัวเลขข้าง Slider)
-            // เราใช้ฟังก์ชัน updateConfigUI ที่คุณมีอยู่แล้วมาช่วย
             updateConfigUI(pin, value);
         }
     } catch (error) {
