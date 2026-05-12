@@ -268,23 +268,26 @@ function saveTimer() {
     const e1 = timeToSeconds(document.getElementById('stop_t1').value);
     const s2 = timeToSeconds(document.getElementById('start_t2').value);
     const e2 = timeToSeconds(document.getElementById('stop_t2').value);
-    // สร้างข้อมูลที่จะส่ง (ต้องระบุ action=update ด้วย)
-    const val1 = `${s1}&value=${e1}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
-    const url1 = `${PROXY_URL}?action=update&pin=${pinR1}&value=${val1}`;
-    
-    const val2 = `${s2}&value=${e2}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
-    const url2 = `${PROXY_URL}?action=update&pin=${pinR2}&value=${val2}`;
-
-    fetch(url1)
-        .then(() => {
-            setTimeout(() => { fetch(url2); }, 500);
-            alert(`บันทึกสำเร็จสำหรับ ${selectedZone.id}`);
-            setTimeout(() => fetchData(), 1500);
-        });
-
-    
 
     if (isNaN(s1) || isNaN(e1) || isNaN(s2) || isNaN(e2)) return alert("กรอกเวลาให้ครบทั้ง 2 รอบ");
+
+     // --- แก้ไขตรงนี้ ---
+    // ใช้ action=update และยิงผ่าน PROXY_URL เพื่อให้ iOS ใช้งานได้
+    const val1 = `${s1}&value=${e1}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
+    const requestUrl1 = `${PROXY_URL}?action=update&pin=${pinR1}&value=${val1}`;
+    
+    const val2 = `${s2}&value=${e2}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
+    const requestUrl2 = `${PROXY_URL}?action=update&pin=${pinR2}&value=${val2}`;
+
+    // เปลี่ยนชื่อตัวแปรเป็น requestUrl1 เพื่อไม่ให้ซ้ำกับของเก่า (ถ้ามีค้างอยู่)
+    fetch(requestUrl1)
+        .then(() => {
+            setTimeout(() => { fetch(requestUrl2); }, 500);
+            alert(`บันทึกสำเร็จสำหรับ ${selectedZone.id}`);
+            setTimeout(() => fetchData(), 1500);
+        })
+        .catch(err => console.error("Timer Save Error:", err));
+    
 
     // ส่งค่าไป Blynk
     const url1 = `${BLYNK_URL}${BLYNK_TOKEN}/update/${pinR1}?value=${s1}&value=${e1}&value=Asia/Bangkok&value=1,2,3,4,5,6,7`;
