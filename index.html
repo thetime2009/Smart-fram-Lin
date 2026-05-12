@@ -114,6 +114,38 @@
     .log-card .pin-name { font-size: 0.75rem; color: #888; font-weight: bold; text-transform: uppercase; }
     .log-card .pin-value { font-size: 1.1rem; font-weight: 700; color: #2c3e50; }
 
+        /* สไตล์สำหรับรูปต้นไม้ใน Header */
+header {
+    position: relative; /* เพื่อให้รูปที่อยู่ข้างในอ้างอิงตำแหน่งจากตัว header */
+    overflow: hidden;   /* ป้องกันไม่ให้รูปต้นไม้ทะลุขอบโค้งออกไป */
+}
+
+.tree-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.2; /* ความจางของรูป (ปรับได้ตามใจชอบ 0.1 - 1.0) */
+    width: 150px; /* ขนาดความกว้างของรูปต้นไม้ */
+    pointer-events: none; /* ป้องกันไม่ให้รูปไปบังการคลิกปุ่ม */
+    filter: brightness(0) invert(1); /* ทำให้รูปกลายเป็นสีขาวสนิท (กรณีรูปต้นฉบับไม่ใช่สีขาว) */
+}
+
+.tree-left {
+    left: 20px; /* ระยะห่างจากด้านซ้าย */
+}
+
+.tree-right {
+    right: 20px; /* ระยะห่างจากด้านขวา */
+    transform: translateY(-50%) scaleX(-1); /* กลับด้านรูปให้ดูสมดุล */
+}
+
+/* ปรับแต่งสำหรับมือถือ (ถ้าจอเล็กให้ซ่อนรูปหรือลดขนาด) */
+@media (max-width: 768px) {
+    .tree-icon {
+        width: 80px;
+        opacity: 0.15;
+    }
+}
 
         
         
@@ -123,8 +155,17 @@
 
 <header class="text-center mb-4">
     <div class="container">
+        <!-- <h2 class="fw-bold"><i class="bi bi-leaf-fill me-2"></i>Smart Farm Pro</h2>
+        <h4 class="mb-3 opacity-65">ระบบจัดการสวนทุเรียนอัจฉริยะ แม่หลิน</h4> -->
+        
+    <img src="https://cdn-icons-png.flaticon.com/512/490/490391.png" class="tree-icon tree-left" alt="tree">
+    <img src="https://cdn-icons-png.flaticon.com/512/490/490391.png" class="tree-icon tree-right" alt="tree">
+
+    <div class="container" style="position: relative; z-index: 2;">
         <h2 class="fw-bold"><i class="bi bi-leaf-fill me-2"></i>Smart Farm Pro</h2>
         <h4 class="mb-3 opacity-65">ระบบจัดการสวนทุเรียนอัจฉริยะ แม่หลิน</h4>
+        </div>
+
         
         <!-- Tab Menu -->
         <ul class="nav nav-pills justify-content-center" id="pills-tab" role="tablist">
