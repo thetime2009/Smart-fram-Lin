@@ -350,12 +350,17 @@ async function syncBlynkConfig() {
     const configPins = ['V26', 'V30', 'V31', 'V55'];
     for (let pin of configPins) {
         try {
-            const response = await fetch(`${BLYNK_URL}${BLYNK_TOKEN}/get/${pin}`);
+            // ✅ แก้ไข: เปลี่ยนจาก BLYNK_URL เป็น PROXY_URL และใส่ action=get
+            const response = await fetch(`${PROXY_URL}?action=get&pin=${pin}`);
+            
             if (response.ok) {
-                const data = await response.json();
-                const val = data[0]; 
+                const rawData = await response.text();
+                let data;
+                try { data = JSON.parse(rawData); } catch { data = rawData; }
                 
-                // เรียกใช้ฟังก์ชันที่ประกาศไว้ด้านบน
+                // Blynk ส่งกลับมาเป็น Array [value] หรือค่าตรงๆ
+                const val = Array.isArray(data) ? data[0] : data;
+                
                 updateConfigUI(pin, val); 
             }
         } catch (error) {
