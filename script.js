@@ -3,7 +3,7 @@
 // =====================
 const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 // แก้บรรทัดนี้: ใส่ URL ของ Google Apps Script ที่คุณ Deploy มา
-const PROXY_URL = "https://script.google.com/macros/s/AKfycbw41D9P2Zt2AbCBk_cGqgB6rpzHmT8WBDTx-3SsOcLbLWfl8s1yVCvC9JnMP6qFdMuA/exec";
+const PROXY_URL = "https://script.google.com/macros/s/AKfycbzjK8-vudm7mRlH8cMp6EJbeFBhsoOnm-UH5h72_byFhwpspiyJCobcHJD6_DDZneo/exec";
 
 
 let farmChart; // ตัวแปรสำหรับคุมกราฟ
