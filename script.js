@@ -6,6 +6,7 @@ const BLYNK_TOKEN = "r6cAEnogc2zRH2BkAr7TTESFcya1osDf";
 // แก้บรรทัดนี้: ใส่ URL ของ Google Apps Script ที่คุณ Deploy มา
 const PROXY_URL = "https://script.google.com/macros/s/AKfycbwDeiau9SIHj6GvWbK2e4Si_8ufZfjrC9-GL4_pJOxPyLZ8HvFgUmaZr-Z42_4xfxdb/exec";
 
+
 let farmChart; // ตัวแปรสำหรับคุมกราฟ
 
 const PIN_MAP = {
@@ -348,24 +349,23 @@ function updateConfigUI(pin, val) {
 // =====================
 async function syncBlynkConfig() {
     const configPins = ['V26', 'V30', 'V31', 'V55'];
-    for (let pin of configPins) {
-        try {
-            // ✅ แก้ไข: เปลี่ยนจาก BLYNK_URL เป็น PROXY_URL และใส่ action=get
-            const response = await fetch(`${PROXY_URL}?action=get&pin=${pin}`);
+    // ส่ง pins ไปเป็น comma-separated string เช่น V26,V30,V31,V55
+    const url = `${PROXY_URL}?action=multi-get&pins=${configPins.join(',')}`;
+    
+    try {
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json(); // จะได้ {V26: [val], V30: [val], ...}
             
-            if (response.ok) {
-                const rawData = await response.text();
-                let data;
-                try { data = JSON.parse(rawData); } catch { data = rawData; }
-                
-                // Blynk ส่งกลับมาเป็น Array [value] หรือค่าตรงๆ
-                const val = Array.isArray(data) ? data[0] : data;
-                
-                updateConfigUI(pin, val); 
-            }
-        } catch (error) {
-            console.error(`ไม่สามารถโหลดค่า ${pin} ได้:`, error);
+            configPins.forEach(pin => {
+                if (data[pin]) {
+                    const val = data[pin][0];
+                    updateConfigUI(pin, val);
+                }
+            });
         }
+    } catch (error) {
+        console.error("Batch Sync Error:", error);
     }
 }
 
