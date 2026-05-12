@@ -122,22 +122,41 @@ function updateChart(temp, humi) {
 // =====================
 // 📡 DATA FETCHING
 // =====================
-async function getBlynkData(pin) {
+async function fetchData() {
+    // 1. รวม Pin ทั้งหมดที่ต้องการโหลด
+    const pins = [
+        'V10','V1','V0','V65','V18','V105','V106',
+        'V11','V12','V13','V14','V27','V40','V41',
+        'V42','V43','V50','V51','V52','V53','V88',
+        'V26','V30','V31','V55'
+    ];
+
+    // 2. สร้าง URL สำหรับ Multi-Get
+    const url = `${PROXY_URL}?action=multi-get&pins=${pins.join(',')}`;
+
     try {
-        // เปลี่ยนมาเรียกผ่าน Proxy แทนการเรียก Blynk ตรงๆ
-        const response = await fetch(`${PROXY_URL}?action=get&pin=${pin}&t=${Date.now()}`);
+        const response = await fetch(url);
         if (response.ok) {
-            let rawData = await response.text();
-            let data;
-            try { 
-                data = JSON.parse(rawData); 
-            } catch { 
-                data = rawData; 
+            const data = await response.json(); // จะได้ Object ที่มีทุก Pin เช่น { "V1": [32.5], "V0": [60], ... }
+            
+            // 3. วนลูปส่งข้อมูลที่ได้ไปอัปเดต UI ทีละตัวจาก Object เดียวกัน
+            for (const pin in data) {
+                if (data[pin] !== null) {
+                    // ส่งค่าไปที่ updateUI เดิมที่คุณมีอยู่
+                    // ต้องระวัง: Blynk ส่งค่ามาเป็น Array [value] ดังนั้นต้องหยิบตัวที่ [0]
+                    updateUI(pin, data[pin]);
+                }
             }
-            updateUI(pin, data);
+            
+            // 4. พิเศษสำหรับหน้า Config (V26, V30, V31, V55) 
+            // ให้รัน updateConfigUI ไปด้วยเลยในรอบเดียวกัน
+            ['V26', 'V30', 'V31', 'V55'].forEach(p => {
+                if(data[p]) updateConfigUI(p, data[p][0]);
+            });
+            
         }
     } catch (error) {
-        console.error(`Error loading ${pin}:`, error);
+        console.error("Fetch All Data Error:", error);
     }
 }
 
