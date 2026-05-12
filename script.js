@@ -124,15 +124,23 @@ function updateChart(temp, humi) {
 // =====================
      // เปลี่ยนมาเรียกผ่าน Proxy แทนการเรียก Blynk ตรงๆ
       // ฟังก์ชันสำหรับดึงค่า (Get)
-function getBlynkData(pin) {
-    const finalUrl = `${proxyUrl}?action=get&pin=${pin}`;
-    
-    return fetch(finalUrl)
-        .then(response => response.json())
-        .then(data => {
-            // นำข้อมูลไปอัปเดตหน้าจอ เช่น document.getElementById('temp').innerText = data[0];
-            return data;
-        });
+async function getBlynkData(pin) {
+    try {
+        // เปลี่ยนมาเรียกผ่าน Proxy แทนการเรียก Blynk ตรงๆ
+        const response = await fetch(`${PROXY_URL}?action=get&pin=${pin}&t=${Date.now()}`);
+        if (response.ok) {
+            let rawData = await response.text();
+            let data;
+            try { 
+                data = JSON.parse(rawData); 
+            } catch { 
+                data = rawData; 
+            }
+            updateUI(pin, data);
+        }
+    } catch (error) {
+        console.error(`Error loading ${pin}:`, error);
+    }
 }
 
 async function fetchData() {
@@ -240,12 +248,13 @@ function updateUI(pin, data) {
 // =====================
 // ฟังก์ชันสำหรับส่งค่า (Update)
 function updateBlynk(pin, value) {
-    const finalUrl = `${proxyUrl}?action=update&pin=${pin}&value=${value}`;
-    
-    fetch(finalUrl)
-        .then(response => response.text())
-        .then(data => console.log("Success:", data))
-        .catch(error => console.error("Error:", error));
+    // เลิกใช้ new Image().src เพราะมันจัดการ Error ยากและติด HTTPS
+    fetch(`${PROXY_URL}?action=update&pin=${pin}&value=${value}`)
+        .then(() => {
+            addLog(`Write ${pin}`, value);
+            setTimeout(() => getBlynkData(pin), 1000);
+        })
+        .catch(err => console.error("Send Error:", err));
 }
 
 function toggleBlynk(pin, isChecked) {
